@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自适应页面示例</title>
+    <title>91网站</title>
     <style>
         /* 全局样式 */
         body, html {
@@ -18,6 +18,35 @@
             flex-direction: column;
         }
 
+	        /* 鼠标文字特效 */
+    var a_idx = 0; 
+    jQuery(document).ready(function($) { 
+        $("body").click(function(e) { 
+            var a = new Array("机子", "78", "三七水龙头", "91"); 
+            var $i = $("<span/>").text(a[a_idx]); 
+            a_idx = (a_idx + 1) % a.length; 
+            var x = e.pageX, 
+            y = e.pageY; 
+            $i.css({ 
+                "z-index": 999999999999999999999999999999999999999999999999999999999999999999999, 
+                "top": y - 20, 
+                "left": x, 
+                "position": "absolute", 
+                "font-weight": "bold", 
+                "color": "#ff6651" 
+            }); 
+            $("body").append($i); 
+            $i.animate({ 
+                "top": y - 180, 
+                "opacity": 0 
+            }, 
+            1500, 
+            function() { 
+                $i.remove(); 
+            }); 
+        }); 
+    }); 
+	</script>
         /* 主要内容容器 */
         .container {
             text-align: center;
@@ -61,34 +90,6 @@
         <a href="http://125.208.23.50/1123123.php"><button class="btn" id="sp1">立即进入！</button></a>
     </div>
 	<script type="text/javascript"> 
-    /* 鼠标文字特效 */
-    var a_idx = 0; 
-    jQuery(document).ready(function($) { 
-        $("body").click(function(e) { 
-            var a = new Array("机子", "78", "三七水龙头", "91"); 
-            var $i = $("<span/>").text(a[a_idx]); 
-            a_idx = (a_idx + 1) % a.length; 
-            var x = e.pageX, 
-            y = e.pageY; 
-            $i.css({ 
-                "z-index": 999999999999999999999999999999999999999999999999999999999999999999999, 
-                "top": y - 20, 
-                "left": x, 
-                "position": "absolute", 
-                "font-weight": "bold", 
-                "color": "#ff6651" 
-            }); 
-            $("body").append($i); 
-            $i.animate({ 
-                "top": y - 180, 
-                "opacity": 0 
-            }, 
-            1500, 
-            function() { 
-                $i.remove(); 
-            }); 
-        }); 
-    }); 
-	</script>
+
 </body>
 </html>

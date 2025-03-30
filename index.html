@@ -1,27 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>91网站</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* 全局样式 */
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000; /* 黑色背景 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-	        /* 鼠标文字特效 */
+    /* 鼠标文字特效 */
     var a_idx = 0; 
     jQuery(document).ready(function($) { 
         $("body").click(function(e) { 
-            var a = new Array("机子", "78", "三七水龙头", "91"); 
+            var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正" ,"法治", "爱国", "敬业", "诚信", "友善"); 
             var $i = $("<span/>").text(a[a_idx]); 
             a_idx = (a_idx + 1) % a.length; 
             var x = e.pageX, 
@@ -45,6 +29,26 @@
             }); 
         }); 
     }); 
+    </script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>91网站</title>
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000; /* 黑色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+	    
 	</script>
         /* 主要内容容器 */
         .container {

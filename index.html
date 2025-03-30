@@ -1,1 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>91网站</title>
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000; /* 黑色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+	        /* 鼠标文字特效 */
+    var a_idx = 0; 
+    jQuery(document).ready(function($) { 
+        $("body").click(function(e) { 
+            var a = new Array("机子", "78", "三七水龙头", "91"); 
+            var $i = $("<span/>").text(a[a_idx]); 
+            a_idx = (a_idx + 1) % a.length; 
+            var x = e.pageX, 
+            y = e.pageY; 
+            $i.css({ 
+                "z-index": 999999999999999999999999999999999999999999999999999999999999999999999, 
+                "top": y - 20, 
+                "left": x, 
+                "position": "absolute", 
+                "font-weight": "bold", 
+                "color": "#ff6651" 
+            }); 
+            $("body").append($i); 
+            $i.animate({ 
+                "top": y - 180, 
+                "opacity": 0 
+            }, 
+            1500, 
+            function() { 
+                $i.remove(); 
+            }); 
+        }); 
+    }); 
+	</script>
+        /* 主要内容容器 */
+        .container {
+            text-align: center;
+            margin-top: -30px; /* 向上偏移30px */
+        }
 
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #FF1493; /* 玫红色 */
+            border: none;
+            border-radius: 5px; /* 圆角 */
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #ff69b4; /* 按钮悬停时的颜色变化 */
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.5); /* 添加阴影效果 */
+        }
+    </style>
+    <script  src="j.js"  ></script>
+<script type="text/javascript"> 
+    
+        $(function(){ 
+	        $("#sp1").trigger("click");
+        }); 
+
+</script>
+</head>
+<body>
+    <div class="container">
+        <!-- logo 图片 -->
+        
+        <br>
+        <!-- 按钮 -->
+        <a href="http://125.208.23.50/1123123.php"><button class="btn" id="sp1">立即进入！</button></a>
+    </div>
+	<script type="text/javascript"> 
+
+</body>
+  </html>

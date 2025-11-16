@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VEGETABLES</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#22C55E', // 活力绿色主色
+            secondary: '#16A34A', // 深绿色辅助色
+            dark: '#0A0A0A',    // 深黑色背景
+            'dark-light': '#121212', // 稍浅的黑色用于卡片
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .text-shadow {
+        text-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
+      }
+      .bg-grid {
+        background-image: linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+      .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px -5px rgba(34, 197, 94, 0.15);
+      }
+      .text-gradient {
+        background: linear-gradient(90deg, #22C55E, #86EFAC);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: gradientShift 4s ease infinite alternate;
+      }
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+      }
+      .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+    }
+  </style>
+</head>
+<body class="bg-dark text-gray-200 font-sans">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full z-50 transition-all duration-300 py-4">
+    <div class="container mx-auto px-4 md:px-6">
+      <nav class="flex items-center justify-between">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2 text-xl md:text-2xl font-bold">
+          <span><img src="logo.jpg" width="30"></img></span>
+          <span class="text-gradient">VEGETABLES</span>
+          <span class="hidden sm:inline">Online</span>
+        </a>
+        
+        <!-- 桌面端导航 -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#home" class="hover:text-primary transition-colors duration-300">Home</a>
+          <a href="#about" class="hover:text-primary transition-colors duration-300">About</a>
+          <a href="#games" class="hover:text-primary transition-colors duration-300">MORE</a>
+          <a href="#join" class="hover:text-primary transition-colors duration-300">Join US</a>
+        </div>
+        
+        <!-- 移动端菜单按钮 -->
+        <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none text-primary">
+          <i class="fa fa-bars"></i>
+        </button>
+      </nav>
+      
+      <!-- 移动端导航菜单 -->
+      <div id="mobile-menu" class="md:hidden hidden mt-4 py-4 border-t border-gray-800">
+        <div class="flex flex-col gap-4">
+          <a href="#home" class="hover:text-primary transition-colors py-2">Home</a>
+          <a href="#about" class="hover:text-primary transition-colors py-2">About</a>
+          <a href="#games" class="hover:text-primary transition-colors py-2">MORE</a>
+          <a href="#join" class="hover:text-primary transition-colors py-2">Join US</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 英雄区域 -->
+  <section id="home" class="min-h-screen pt-24 bg-grid flex items-center relative overflow-hidden">
+    <!-- 装饰元素 -->
+    <div class="absolute top-1/4 right-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/3 left-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
+    
+    <div class="container mx-auto px-4 md:px-6 py-16 relative z-10">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="fade-in">
+          <h1 class="text-[clamp(2.5rem,8vw,4.5rem)] font-bold leading-tight mb-6 text-shadow">
+            VEGETABLES<br>
+            <span class="text-gradient">游戏热爱,同好集结</span>
+          </h1>
+          <p class="text-gray-300 text-lg md:text-xl mb-8 max-w-lg">
+            一个游戏爱好者社群 在这里结交同好 一起交流 分享攻略 享受的游戏乐趣
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 mb-10">
+            <a href="#join" class="bg-primary hover:bg-primary/90 text-dark px-8 py-3 rounded-full font-semibold transition-all text-center shadow-lg shadow-primary/20 pulse">
+              JOIN US
+            </a>
+            <a href="#games" class="border border-primary text-primary hover:bg-primary/10 px-8 py-3 rounded-full font-semibold transition-all text-center">
+              MORE
+            </a>
+          </div>
+          <div class="flex flex-wrap items-center gap-6 text-gray-400">
+            <div class="flex items-center gap-2">
+              <i class="fa fa-users text-primary"></i>
+              <span></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa fa-gamepad text-primary"></i>
+              <span></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa fa-comments text-primary"></i>
+              <span></span>
+            </div>
+          </div>
+        </div>
+        <div class="relative fade-in">
+<!-- 主视觉图片 -->
+          <img src="V.jpg" alt="VEGETABLES" class="rounded-xl w-full h-auto shadow-2xl shadow-primary/5">
+          <!-- 装饰元素 -->
+          <div class="absolute -top-4 -right-4 w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center">
+            <i class="fa fa-leaf text-primary text-2xl rotate-12"></i>
+          </div>
+          <div class="absolute -bottom-6 -left-6 bg-dark-light p-3 rounded-lg border border-gray-800">
+            <p class="text-primary font-medium">VEGETABLES Chat OR Club</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于社群 -->
+  <section id="about" class="py-20 bg-dark">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="text-center mb-16 fade-in">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">About <span class="text-gradient">VEGETABLES CHAT</span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">我们是一群热爱游戏的玩家，因共同的兴趣而聚集，创造一个友好、积极的游戏交流环境</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-dark-light rounded-xl p-8 border border-gray-800 card-hover fade-in">
+          <div class="w-14 h-14 bg-primary/20 rounded-lg flex items-center justify-center mb-6">
+            <i class="fa fa-users text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3 text-primary">多年社群</h3>
+          <p class="text-gray-400">社群创建已有3年多
+            不管你是资深大佬还是游戏小白，
+            这里都有志同道合的伙伴。
+            蔬菜赎菜，没有歧视，只有互助</p>
+        </div>
+        
+        <div class="bg-dark-light rounded-xl p-8 border border-gray-800 card-hover fade-in">
+          <div class="w-14 h-14 bg-primary/20 rounded-lg flex items-center justify-center mb-6">
+            <i class="fa fa-gamepad text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3 text-primary">不只是游戏</h3>
+          <p class="text-gray-400">多平台的游戏讨论，从热门大作到独立小游戏，又或者是生活趣事，总有你感兴趣的话题</p>
+        </div>
+        
+        <div class="bg-dark-light rounded-xl p-8 border border-gray-800 card-hover fade-in">
+          <div class="w-14 h-14 bg-primary/20 rounded-lg flex items-center justify-center mb-6">
+            <i class="fa fa-share-alt text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3 text-primary">资源分享</h3>
+          <p class="text-gray-400">分享游戏攻略、技巧、资讯和精彩瞬间，帮助彼此提升游戏体验，发现更多游戏乐趣。</p>
+        </div>
+      </div>
+      
+      <div class="mt-16 bg-dark-light rounded-xl p-8 md:p-10 border border-gray-800 fade-in">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 class="text-2xl font-semibold mb-4 text-gradient">我们的理念</h3>
+            <p class="text-gray-300 mb-4">
+              创建社群的初衷是为玩家提供一个纯粹的游戏交流空间，
+              让每个人都能在这里找到游戏的快乐
+            </p>
+            <p class="text-gray-300">
+              我们相信游戏的本质是带来快乐和连接人与人之间的情感，因此我们致力于打造一个
+              积极、友好的游戏社区氛围
+            </p>
+          </div>
+          <div class="relative">
+            <img src="V.jpg" alt="游戏交流" class="rounded-lg w-full h-auto">
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 热门游戏 -->
+  <section id="games" class="py-20 bg-dark-light">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="text-center mb-16 fade-in">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">MORE<span class="text-gradient"></span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">“群内较多人玩的游戏和更多网站功能性体验都在这里了”</p>
+      </div>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- 游戏卡片1 -->
+        <div class="bg-dark rounded-xl overflow-hidden border border-gray-800 card-hover fade-in">
+          <div class="h-48 overflow-hidden">
+            <img src="minecraft.jpg" alt="游戏封面" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+          </div>
+          <div class="p-5">
+            <h3 class="font-semibold text-lg mb-2 text-primary">Minecraft</h3>
+            <p class="text-gray-400 text-sm mb-4">经典沙盒</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs bg-primary/20 text-primary px-2 py-1 rounded">5+ 常驻玩家</span>
+              <a href="#join" class="text-primary hover:underline text-sm">加入讨论</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 游戏卡片2 -->
+        <div class="bg-dark rounded-xl overflow-hidden border border-gray-800 card-hover fade-in">
+          <div class="h-48 overflow-hidden">
+            <img src="anqu.jpg" alt="游戏封面" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+          </div>
+          <div class="p-5">
+            <h3 class="font-semibold text-lg mb-2 text-primary">暗区突围</h3>
+            <p class="text-gray-400 text-sm mb-4">硬核射击手游</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs bg-primary/20 text-primary px-2 py-1 rounded">3+ 常驻玩家</span>
+              <a href="#join" class="text-primary hover:underline text-sm">加入讨论</a>
+            </div>
+          </div>
+        </div>
+    
+        
+        <!-- 游戏卡片6 -->
+        <div class="bg-dark rounded-xl overflow-hidden border border-gray-800 card-hover fade-in">
+          <div class="h-48 overflow-hidden">
+            <img src="sanjiaozhou.jpg" alt="游戏封面" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+          </div>
+          <div class="p-5">
+            <h3 class="font-semibold text-lg mb-2 text-primary">三角洲行动</h3>
+            <p class="text-gray-400 text-sm mb-4">新一代战术射击品质的标杆</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs bg-primary/20 text-primary px-2 py-1 rounded">2+玩家</span>
+              <a href="#join" class="text-primary hover:underline text-sm">加入讨论</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 游戏卡片7 -->
+        <div class="bg-dark rounded-xl overflow-hidden border border-gray-800 card-hover fade-in">
+          <div class="h-48 overflow-hidden">
+            <img src="heping.jpg" alt="游戏封面" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+          </div>
+          <div class="p-5">
+            <h3 class="font-semibold text-lg mb-2 text-primary">和平精英</h3>
+            <p class="text-gray-400 text-sm mb-4">团队配合与竞技</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs bg-primary/20 text-primary px-2 py-1 rounded">10+玩家</span>
+              <a href="#join" class="text-primary hover:underline text-sm">加入讨论</a>
+            </div>
+          </div>
+        </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 加入社群 -->
+  <section id="join" class="py-20 bg-dark relative overflow-hidden">
+    <!-- 装饰元素 -->
+    <div class="absolute top-1/3 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
+    
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="text-center mb-16 fade-in">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Join <span class="text-gradient">US</span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">选择你常用的社交平台，加入我们的大家庭</p>
+      </div>
+ 
+      <div class="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+        <!-- 微信群入口 -->
+        <div class="bg-dark-light rounded-xl p-8 border border-gray-800 text-center card-hover fade-in">
+          <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa fa-weixin text-green-500 text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4 text-primary">WeiXin CHAT+</h3>
+          <p class="text-gray-400 mb-6">加入微信社群，与更多玩家实时交流，分享游戏心得</p>
+          <!-- 微信二维码占位 -->
+          <div class="w-48 h-48 mx-auto mb-6 rounded border-2 border-primary/20 bg-dark flex items-center justify-center overflow-hidden">
+            <img src="weixin.jpg" alt="微信二维码" class="w-full h-full object-cover">
+          </div>
+          <p class="text-gray-500 text-sm mb-4">添加群主微信<span class="text-primary">邀请你进群</span></p>
+          <a href="weixin://" class="inline-block bg-green-500 hover:bg-green-600 text-dark px-6 py-3 rounded-full font-semibold transition-all shadow-lg shadow-green-500/20">
+            立即加入
+          </a>
+ 
+        </div>
+        
+        <!-- QQ群入口 -->
+        <div class="bg-dark-light rounded-xl p-8 border border-gray-800 text-center card-hover fade-in">
+          <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa fa-qq text-blue-500 text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4 text-primary">
+            QQ CHAT
+          </h3>
+          <p class="text-gray-400 mb-6">加入QQ社群，参与讨论，组队开黑，分享游戏资源</p>
+          <!-- QQ二维码占位 -->
+          <div class="w-48 h-48 mx-auto mb-6 rounded border-2 border-primary/20 bg-dark flex items-center justify-center overflow-hidden">
+            <img src="网页 404.jpg" alt="QQ二维码" class="w-full h-full object-cover">
+          </div>
+          <p class="text-gray-500 text-sm mb-4"><span class="text-primary">目前不活跃 暂停服务</span></p>
+          <a href="mqqapi://card/show_pslcard?src_type=internal&version=1&uin=123456789&card_type=1&source=qrcode" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold transition-all shadow-lg shadow-blue-500/20">
+            立即加入
+          </a>
+        </div>
+      </div>
+      
+      <div class="mt-16 text-center fade-in">
+        <h3 class="text-xl font-semibold mb-4">社群规则</h3>
+        <div class="max-w-2xl mx-auto grid md:grid-cols-3 gap-4 text-left">
+          <div class="bg-dark-light p-4 rounded-lg border border-gray-800">
+            <p class="flex items-start gap-2"><i class="fa fa-check text-primary mt-1"></i> <span>友善交流，尊重他人</span></p>
+          </div>
+          <div class="bg-dark-light p-4 rounded-lg border border-gray-800">
+            <p class="flex items-start gap-2"><i class="fa fa-check text-primary mt-1"></i> <span>专注游戏话题，禁止广告</span></p>
+          </div>
+          <div class="bg-dark-light p-4 rounded-lg border border-gray-800">
+            <p class="flex items-start gap-2"><i class="fa fa-check text-primary mt-1"></i> <span>遵守法律法规，文明发言</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark-light py-12 border-t border-gray-800">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-6 md:mb-0">
+          <a href="#" class="flex items-center gap-2 text-xl font-bold">
+            <span class="text-gradient">VEGETABLES</span>
+            <span>Online</span>
+          </a>
+          <p class="text-gray-500 text-sm mt-2">游戏热爱 同好集结</p>
+        </div>
+        <div class="flex gap-6">
+          <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+            <i class="fa fa-weixin text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+            <i class="fa fa-qq text-xl"></i>
+          </a>
+        </div>
+      </div>
+      <div class="mt-8 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm"><p>部分为概念思想 以实际为主</p><p>此网站为私人网站 娱乐为主 请勿外传</p>
+        <p>&copy; 2025 VEGETABLES Online. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 导航栏滚动效果
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-dark/95', 'backdrop-blur-md', 'shadow-md', 'py-2');
+        navbar.classList.remove('py-4');
+      } else {
+        navbar.classList.remove('bg-dark/95', 'backdrop-blur-md', 'shadow-md', 'py-2');
+        navbar.classList.add('py-4');
+      }
+    });
+    
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      // 切换图标
+      const icon = menuToggle.querySelector('i');
+      if (icon.classList.contains('fa-bars')) {
+        icon.classList.replace('fa-bars', 'fa-times');
+      } else {
+        icon.classList.replace('fa-times', 'fa-bars');
+      }
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        // 关闭移动菜单（如果打开）
+        if (!mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('hidden');
+          const icon = menuToggle.querySelector('i');
+          icon.classList.replace('fa-times', 'fa-bars');
+        }
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // 滚动显示动画
+    const fadeElements = document.querySelectorAll('.fade-in');
+    
+    const fadeInObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          fadeInObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    fadeElements.forEach(element => {
+      fadeInObserver.observe(element);
+    });
+  </script>
+</body>
+</html>

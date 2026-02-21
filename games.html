@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>游戏中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 背景装饰 */
+        .bg-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-decoration::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: bgMove 20s linear infinite;
+        }
+        
+        @keyframes bgMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* 毛玻璃效果 */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 游戏卡片样式 */
+        .game-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 1rem;
+        }
+        
+        .game-card:hover::before {
+            opacity: 1;
+        }
+        
+        /* 按钮动画 */
+        .btn-hover {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-hover::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-hover:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* 导航栏动画 */
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-item:hover::after {
+            width: 100%;
+        }
+        
+        /* 加载动画 */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- 背景装饰 -->
+    <div class="bg-decoration"></div>
+    
+    <!-- 导航栏 -->
+    <header class="glass sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-gamepad text-2xl text-pink-400"></i>
+                <h1 class="text-xl font-bold">游戏中心</h1>
+            </div>
+            
+            <!-- 桌面导航 -->
+            <nav class="hidden md:flex space-x-6">
+                <button><a href="官网.html" target="_blank" rel="noopener noreferrer">退回官网</a></button>
+                <a href="#" class="nav-item py-2">关于</a>
+            </nav>
+            
+            <!-- 移动端菜单按钮 -->
+            <button id="menuBtn" class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobileMenu" class="md:hidden hidden glass mt-2 mx-4 rounded-lg">
+            <nav class="flex flex-col p-4 space-y-3">
+               <a href="官网.html" class="py-2 hover:bg-white/10 rounded px-2 transition">退回官网</a>
+                <a href="#" class="py-2 hover:bg-white/10 rounded px-2 transition">关于</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 欢迎区域 -->
+        <section class="mb-12 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-yellow-400">
+                游戏中心
+            </h2>
+            <p class="text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
+                VEGETABLES 小游戏
+            </p>
+        </section>
+        
+        <!-- 游戏标签 -->
+        <section class="mb-8 flex flex-wrap justify-center gap-3">
+            <button class="btn-hover bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-sm font-medium transition">
+                ↓全部游戏↓
+            </button>
+         
+        </section>
+        
+        <!-- 游戏卡片网格 -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+           <!-- 俄罗斯方块游戏卡片 -->
+<div class="game-card glass rounded-xl overflow-hidden relative" onclick="window.location.href='geme1.html'">
+    <div class="h-48 bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+        <i class="fas fa-cubes text-6xl text-white/80"></i>
+    </div>
+    <div class="p-5">
+        <h3 class="text-xl font-bold mb-2">俄罗斯方块</h3>
+        <p class="text-white/70 text-sm mb-4">经典怀旧 挑战高分 | 等级奖励机制</p>
+        <div class="flex items-center justify-between">
+            <span class="text-xs bg-pink-400/30 text-pink-200 px-2 py-1 rounded-full">休闲益智</span>
+            <!-- 给按钮添加跳转，并阻止冒泡 -->
+            <button class="btn-hover bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium" 
+                    onclick="window.location.href='geme1.html'; event.stopPropagation();">
+                开始游玩
+            </button>
+        </div>
+    </div>
+</div>
+            
+            <!-- 贪吃蛇游戏卡片 -->
+<div class="game-card glass rounded-xl overflow-hidden relative" onclick="window.location.href='snake.html'">
+    <div class="h-48 bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
+        <i class="fas fa-bug text-6xl text-white/80"></i>
+    </div>
+    <div class="p-5">
+        <h3 class="text-xl font-bold mb-2">贪吃蛇</h3>
+        <p class="text-white/70 text-sm mb-4">灵活走位 越长越勇 | 自定义参数</p>
+        <div class="flex items-center justify-between">
+            <span class="text-xs bg-green-400/30 text-green-200 px-2 py-1 rounded-full">休闲益智</span>
+            <button class="btn-hover bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium" 
+                    onclick="window.location.href='snake.html'; event.stopPropagation();">
+                开始游玩
+            </button>
+        </div>
+    </div>
+</div>
+            
+
+           <!-- 五子棋游戏卡片 -->
+<div class="game-card glass rounded-xl overflow-hidden relative" onclick="window.location.href='gobang.html'">
+    <div class="h-48 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+        <i class="fas fa-chess-board text-6xl text-white/80"></i>
+    </div>
+    <div class="p-5">
+        <h3 class="text-xl font-bold mb-2">五子棋</h3>
+        <p class="text-white/70 text-sm mb-4">策略对弈 智力比拼 | 支持与LZR IA对战</p>
+        <div class="flex items-center justify-between">
+            <span class="text-xs bg-indigo-400/30 text-indigo-200 px-2 py-1 rounded-full">策略对弈</span>
+            <button class="btn-hover bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium" 
+                    onclick="window.location.href='gobang.html'; event.stopPropagation();">
+                开始游玩
+            </button>
+        </div>
+    </div>
+</div>
+            
+            <!-- 添加新游戏卡片模板 - 复制这个模板来添加更多游戏 -->
+            <!-- 
+            <div class="game-card glass rounded-xl overflow-hidden relative" onclick="window.location.href='your-game-page.html'">
+                <div class="h-48 bg-gradient-to-br from-COLOR1 to-COLOR2 flex items-center justify-center">
+                    <i class="fas fa-ICON text-6xl text-white/80"></i>
+                </div>
+                <div class="p-5">
+                    <h3 class="text-xl font-bold mb-2">游戏名称</h3>
+                    <p class="text-white/70 text-sm mb-4">游戏描述 | 游戏特色</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-TAGCOLOR/30 text-TAGCOLOR/80 px-2 py-1 rounded-full">游戏分类</span>
+                        <button class="btn-hover bg-gradient-to-r from-BTNCOLOR1 to-BTNCOLOR2 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                            开始游玩
+                        </button>
+                    </div>
+                </div>
+            </div>
+            -->
+        </section>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer class="glass mt-12">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-gamepad text-pink-400"></i>
+                        <span class="font-semibold">游戏中心</span>
+                    </div>
+                    <p class="text-sm text-white/60 mt-1">© 2026 VEGETABLES Online-游戏中心. 保留所有权利.</p>
+                </div>
+                
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // 移动端菜单切换
+        document.getElementById('menuBtn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 页面滚动时导航栏效果
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-lg');
+            } else {
+                header.classList.remove('shadow-lg');
+            }
+        });
+        
+        // 添加页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameCards = document.querySelectorAll('.game-card');
+            gameCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+</body>
+</html>

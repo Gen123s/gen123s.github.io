@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>贪吃蛇 | 游戏中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            color: white;
+        }
+        
+        .bg-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-decoration::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: bgMove 20s linear infinite;
+        }
+        
+        @keyframes bgMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-hover {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-hover::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-hover:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            border-radius: 0.75rem;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: borderGlow 3s linear infinite;
+            background-size: 400% 400%;
+        }
+        
+        .canvas-container:hover::before {
+            opacity: 0.7;
+        }
+        
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .setting-item {
+            margin-bottom: 1rem;
+        }
+        
+        .setting-label {
+            display: block;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+        
+        .setting-input {
+            width: 100%;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            color: white;
+            outline: none;
+        }
+        
+        .setting-input:focus {
+            border-color: rgba(0, 204, 255, 0.8);
+        }
+        
+        .difficulty-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .difficulty-tip {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.6);
+            margin-left: 4px;
+        }
+        .difficulty-extreme {
+            color: #ff4444 !important;
+            font-weight: 600;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    
+    <header class="glass sticky top-0 z-50 mb-6">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="games.html" class="flex items-center space-x-2">
+                <i class="fas fa-arrow-left text-lg"></i>
+                <span class="font-medium">返回游戏中心</span>
+            </a>
+            <h1 class="text-xl font-bold">贪吃蛇</h1>
+            <div class="w-16"></div>
+        </div>
+    </header>
+    
+    <main class="container mx-auto px-4">
+        <div class="max-w-md mx-auto">
+            <div class="glass rounded-xl p-6 mb-6 relative">
+                <div id="startMask" class="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center z-50">
+                    <button id="realStartBtn" class="btn-hover bg-gradient-to-r from-pink-500 to-purple-500 text-white text-lg px-8 py-4 rounded-lg font-medium">
+                        开始游戏
+                    </button>
+                </div>
+                
+                <div id="endMask" class="absolute inset-0 bg-black/80 rounded-xl flex flex-col items-center justify-center z-50 hidden">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold mb-2 text-white">游戏结束</h2>
+                        <p class="text-lg mb-1 text-white">最终得分：<span id="finalScore" class="text-yellow-300 font-bold">0</span></p>
+                        <p class="text-lg mb-1 text-white">蛇身长度：<span id="finalLength" class="text-green-300 font-bold">1</span></p>
+                        <p class="text-lg mb-1 text-white">速度设置：<span id="finalSpeedSetting" class="text-cyan-300 font-bold"></span></p>
+                        <p class="text-lg text-white">难度设置：<span id="finalDifficulty" class="text-purple-300 font-bold"></span></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="restartFromEnd" class="btn-hover bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-medium">重新开始</button>
+                        <button id="backHome" class="btn-hover bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg font-medium">返回主页</button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between gap-2 mb-4">
+                    <div class="text-center flex-1">
+                        <div class="text-sm text-white/70">得分</div>
+                        <div class="text-2xl font-bold text-pink-400" id="score">0</div>
+                    </div>
+                    <div class="text-center flex-1">
+                        <div class="text-sm text-white/70">长度</div>
+                        <div class="text-2xl font-bold text-green-400" id="length">1</div>
+                    </div>
+                    <div class="text-center flex-1">
+                        <div class="text-sm text-white/70">难度</div>
+                        <div class="text-2xl font-bold text-purple-400" id="difficultyText">默认</div>
+                    </div>
+                    <div class="text-center flex-1">
+                        <div class="text-sm text-white/70">速度</div>
+                        <div class="text-2xl font-bold text-cyan-400" id="speedText">5.0</div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center mb-6">
+                    <div class="canvas-container">
+                        <canvas id="snakeCanvas" width="300" height="300" class="border border-white/20 rounded-lg bg-black/20"></canvas>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-3 mb-6 md:hidden">
+                    <div></div>
+                    <button id="upBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-up text-lg"></i>
+                    </button>
+                    <div></div>
+                    <button id="leftBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </button>
+                    <button id="downBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-down text-lg"></i>
+                    </button>
+                    <button id="rightBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-right text-lg"></i>
+                    </button>
+                </div>
+                
+                <div class="flex gap-3 justify-center">
+                    <button id="pauseBtn" class="btn-hover bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium">暂停</button>
+                    <button id="restartBtn" class="btn-hover bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-2 rounded-lg font-medium">重新开始</button>
+                </div>
+            </div>
+            
+            <div class="glass rounded-xl p-6 mb-6">
+                <h3 class="font-semibold text-lg mb-3">操作说明</h3>
+                <div class="space-y-2 text-white/80">
+                    <p>🖥️ PC端：↑↓←→ 控制移动 | P键 暂停/继续</p>
+                    <p>📱 移动端：点击方向按钮控制移动</p>
+                    <p>💡 吃到食物得分+10，长度+1，速度提升</p>
+                    <p>💀 撞墙或撞到自身，游戏结束</p>
+                </div>
+            </div>
+            
+            <div class="glass rounded-xl p-6">
+                <h3 class="font-semibold text-lg mb-4">速度设置（格/秒）</h3>
+                
+                <div class="setting-item">
+                    <label class="setting-label flex items-center gap-2">
+                        <input type="checkbox" id="fixedSpeedToggle" class="h-4 w-4 rounded border-white/30 bg-white/10 text-cyan-400 focus:ring-cyan-400">
+                        固定速度（全程速度不变）
+                    </label>
+                </div>
+                
+                <div class="setting-item" id="fixedSpeedGroup">
+                    <label for="fixedSpeedInput" class="setting-label">固定速度（格/秒 建议 2～12）</label>
+                    <input type="number" step="0.5" id="fixedSpeedInput" class="setting-input" value="5.0" min="1" max="20">
+                </div>
+                
+                <div class="setting-item" id="defaultSpeedGroup">
+                    <label for="defaultSpeedInput" class="setting-label">初始速度（格/秒 建议 2～10）</label>
+                    <input type="number" step="0.5" id="defaultSpeedInput" class="setting-input" value="5.0" min="1" max="20">
+                </div>
+                
+                <div class="setting-item" id="speedStepGroup">
+                    <label for="speedStepInput" class="setting-label">每次加速（格/秒 建议 0.5～2）</label>
+                    <input type="number" step="0.5" id="speedStepInput" class="setting-input" value="0.5" min="0.5" max="5">
+                </div>
+
+                <div class="setting-item mt-6 border-t border-white/20 pt-4">
+                    <h3 class="font-semibold text-lg mb-3">难度设置（食物位置概率）</h3>
+                    <div class="difficulty-option">
+                        <input type="radio" name="difficulty" id="diffEasy" value="easy" checked>
+                        <label for="diffEasy">简单</label>
+                        <span class="difficulty-tip">食物极少出现在边缘</span>
+                    </div>
+                    <div class="difficulty-option">
+                        <input type="radio" name="difficulty" id="diffDefault" value="default">
+                        <label for="diffDefault">默认</label>
+                        <span class="difficulty-tip">食物较少出现在边缘</span>
+                    </div>
+                    <div class="difficulty-option">
+                        <input type="radio" name="difficulty" id="diffHard" value="hard">
+                        <label for="diffHard">困难</label>
+                        <span class="difficulty-tip">食物较多出现在边缘</span>
+                    </div>
+                    <div class="difficulty-option">
+                        <input type="radio" name="difficulty" id="diffExtreme" value="extreme">
+                        <label for="diffExtreme">极限</label>
+                        <span class="difficulty-tip difficulty-extreme">食物将100%出现在边缘</span>
+                    </div>
+                </div>
+                
+                <button id="saveSettingsBtn" class="btn-hover bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-2 rounded-lg font-medium w-full mt-4">
+                   保存并重启
+                </button>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        const config = {
+            gridSize: 20,
+            tileCount: 15,
+            defaultCellsPerSecond: 5.0,
+            speedIncrement: 0.5,
+            maxCellsPerSecond: 15,
+            fixedCellsPerSecond: 5.0,
+            useFixedSpeed: false,
+            difficulty: 'default',
+            edgeProbability: {
+                easy: 0.1,
+                default: 0.3,
+                hard: 0.6,
+                extreme: 1.0
+            },
+            difficultyName: {
+                easy: '简单',
+                default: '默认',
+                hard: '困难',
+                extreme: '极限'
+            }
+        };
+
+        let gameState = {
+            canvas: null,
+            ctx: null,
+            snake: [{x: 7, y: 7}],
+            food: {},
+            direction: 'right',
+            nextDirection: 'right',
+            score: 0,
+            isPaused: true,
+            gameInterval: null,
+            cellsPerSecond: config.defaultCellsPerSecond,
+            useFixedSpeed: config.useFixedSpeed,
+            difficulty: config.difficulty
+        };
+
+        const startMask = document.getElementById('startMask');
+        const endMask = document.getElementById('endMask');
+        const realStartBtn = document.getElementById('realStartBtn');
+        const finalScore = document.getElementById('finalScore');
+        const finalLength = document.getElementById('finalLength');
+        const finalSpeedSetting = document.getElementById('finalSpeedSetting');
+        const finalDifficulty = document.getElementById('finalDifficulty');
+        const restartFromEnd = document.getElementById('restartFromEnd');
+        const backHome = document.getElementById('backHome');
+        const scoreEl = document.getElementById('score');
+        const lengthEl = document.getElementById('length');
+        const difficultyText = document.getElementById('difficultyText');
+        const speedText = document.getElementById('speedText');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        const fixedSpeedToggle = document.getElementById('fixedSpeedToggle');
+        const fixedSpeedInput = document.getElementById('fixedSpeedInput');
+        const defaultSpeedInput = document.getElementById('defaultSpeedInput');
+        const speedStepInput = document.getElementById('speedStepInput');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const fixedSpeedGroup = document.getElementById('fixedSpeedGroup');
+        const defaultSpeedGroup = document.getElementById('defaultSpeedGroup');
+        const speedStepGroup = document.getElementById('speedStepGroup');
+
+        const diffEasy = document.getElementById('diffEasy');
+        const diffDefault = document.getElementById('diffDefault');
+        const diffHard = document.getElementById('diffHard');
+        const diffExtreme = document.getElementById('diffExtreme');
+
+        function initGame() {
+            gameState.canvas = document.getElementById('snakeCanvas');
+            gameState.ctx = gameState.canvas.getContext('2d');
+            gameState.snake = [{x: 7, y: 7}];
+            gameState.direction = 'right';
+            gameState.nextDirection = 'right';
+            gameState.score = 0;
+            gameState.isPaused = true;
+            gameState.difficulty = config.difficulty;
+
+            gameState.useFixedSpeed = fixedSpeedToggle.checked;
+            if (gameState.useFixedSpeed) {
+                gameState.cellsPerSecond = config.fixedCellsPerSecond;
+            } else {
+                gameState.cellsPerSecond = config.defaultCellsPerSecond;
+            }
+
+            generateFood();
+            updateUI();
+            drawGame();
+            bindEvents();
+            initSettingsUI();
+        }
+
+        function initSettingsUI() {
+            fixedSpeedToggle.checked = gameState.useFixedSpeed;
+            fixedSpeedInput.value = config.fixedCellsPerSecond;
+            defaultSpeedInput.value = config.defaultCellsPerSecond;
+            speedStepInput.value = config.speedIncrement;
+            
+            switch(config.difficulty) {
+                case 'easy': diffEasy.checked = true; break;
+                case 'hard': diffHard.checked = true; break;
+                case 'extreme': diffExtreme.checked = true; break;
+                default: diffDefault.checked = true; break;
+            }
+            
+            toggleSettingsGroups();
+        }
+
+        function toggleSettingsGroups() {
+            gameState.useFixedSpeed = fixedSpeedToggle.checked;
+            if (gameState.useFixedSpeed) {
+                fixedSpeedGroup.classList.remove('hidden');
+                defaultSpeedGroup.classList.add('hidden');
+                speedStepGroup.classList.add('hidden');
+            } else {
+                fixedSpeedGroup.classList.add('hidden');
+                defaultSpeedGroup.classList.remove('hidden');
+                speedStepGroup.classList.remove('hidden');
+            }
+        }
+
+        function saveSettings() {
+            if (gameState.useFixedSpeed) {
+                const v = parseFloat(fixedSpeedInput.value);
+                if (isNaN(v) || v < 1 || v > 20) {
+                    alert('请输入1～20之间的有效数字');
+                    fixedSpeedInput.value = config.fixedCellsPerSecond;
+                    return;
+                }
+                config.fixedCellsPerSecond = Number(v.toFixed(1));
+            } else {
+                const def = parseFloat(defaultSpeedInput.value);
+                const step = parseFloat(speedStepInput.value);
+                if (isNaN(def) || def < 1 || def > 20) {
+                    alert('初始速度请输入1～20之间的数字');
+                    defaultSpeedInput.value = config.defaultCellsPerSecond;
+                    return;
+                }
+                if (isNaN(step) || step < 0.5 || step > 5) {
+                    alert('加速幅度请输入0.5～5之间的数字');
+                    speedStepInput.value = config.speedIncrement;
+                    return;
+                }
+                config.defaultCellsPerSecond = Number(def.toFixed(1));
+                config.speedIncrement = Number(step.toFixed(1));
+            }
+
+            if(diffEasy.checked) config.difficulty = 'easy';
+            else if(diffHard.checked) config.difficulty = 'hard';
+            else if(diffExtreme.checked) config.difficulty = 'extreme';
+            else config.difficulty = 'default';
+
+            restartGame();
+            alert('设置已保存');
+        }
+
+        function getMoveInterval() {
+            return 1000 / gameState.cellsPerSecond;
+        }
+
+        function startGameLoop() {
+            clearInterval(gameState.gameInterval);
+            gameState.gameInterval = setInterval(moveSnake, getMoveInterval());
+        }
+
+        function startRealGame() {
+            startMask.classList.add('hidden');
+            gameState.isPaused = false;
+            startGameLoop();
+        }
+
+        function isEdgeCell(x, y) {
+            return x === 0 || x === config.tileCount - 1 || y === 0 || y === config.tileCount - 1;
+        }
+
+        function getInnerCell() {
+            return {
+                x: Math.floor(Math.random() * (config.tileCount - 2)) + 1,
+                y: Math.floor(Math.random() * (config.tileCount - 2)) + 1
+            };
+        }
+
+        function getEdgeCell() {
+            let x, y;
+            if(Math.random() > 0.5) {
+                x = Math.random() > 0.5 ? 0 : config.tileCount - 1;
+                y = Math.floor(Math.random() * config.tileCount);
+            } else {
+                x = Math.floor(Math.random() * config.tileCount);
+                y = Math.random() > 0.5 ? 0 : config.tileCount - 1;
+            }
+            x = Math.max(0, Math.min(config.tileCount - 1, x));
+            y = Math.max(0, Math.min(config.tileCount - 1, y));
+            return {x, y};
+        }
+
+        function generateFood() {
+            let pos;
+            const prob = config.edgeProbability[gameState.difficulty];
+            
+            if(Math.random() < prob) {
+                pos = getEdgeCell();
+            } else {
+                pos = getInnerCell();
+            }
+
+            for(let s of gameState.snake) {
+                if(s.x === pos.x && s.y === pos.y) {
+                    generateFood();
+                    return;
+                }
+            }
+            gameState.food = pos;
+        }
+
+        function drawGame() {
+            const ctx = gameState.ctx;
+            ctx.clearRect(0, 0, 300, 300);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= config.tileCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * 20, 0);
+                ctx.lineTo(i * 20, 300);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, i * 20);
+                ctx.lineTo(300, i * 20);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = '#FF3366';
+            ctx.fillRect(gameState.food.x * 20 + 1, gameState.food.y * 20 + 1, 18, 18);
+
+            for (let i = 0; i < gameState.snake.length; i++) {
+                ctx.fillStyle = i === 0 ? '#00FF99' : '#00CCFF';
+                ctx.fillRect(gameState.snake[i].x * 20 + 1, gameState.snake[i].y * 20 + 1, 18, 18);
+            }
+        }
+
+        function moveSnake() {
+            if (gameState.isPaused) return;
+
+            gameState.direction = gameState.nextDirection;
+            const head = {...gameState.snake[0]};
+
+            switch (gameState.direction) {
+                case 'up': head.y--; break;
+                case 'down': head.y++; break;
+                case 'left': head.x--; break;
+                case 'right': head.x++; break;
+            }
+
+            if (checkCollision(head)) {
+                gameOver();
+                return;
+            }
+
+            gameState.snake.unshift(head);
+
+            if (head.x === gameState.food.x && head.y === gameState.food.y) {
+                gameState.score += 10;
+                if (!gameState.useFixedSpeed) {
+                    gameState.cellsPerSecond = Math.min(config.maxCellsPerSecond, gameState.cellsPerSecond + config.speedIncrement);
+                    startGameLoop();
+                }
+                generateFood();
+                updateUI();
+            } else {
+                gameState.snake.pop();
+            }
+            drawGame();
+        }
+
+        function checkCollision(head) {
+            if (head.x < 0 || head.x >= config.tileCount || head.y < 0 || head.y >= config.tileCount) return true;
+            for (let i = 1; i < gameState.snake.length; i++) {
+                const s = gameState.snake[i];
+                if (s.x === head.x && s.y === head.y) return true;
+            }
+            return false;
+        }
+
+        function updateUI() {
+            scoreEl.textContent = gameState.score;
+            lengthEl.textContent = gameState.snake.length;
+            difficultyText.textContent = config.difficultyName[gameState.difficulty];
+            speedText.textContent = gameState.cellsPerSecond.toFixed(1);
+        }
+
+        function gameOver() {
+            gameState.isPaused = true;
+            clearInterval(gameState.gameInterval);
+            finalScore.textContent = gameState.score;
+            finalLength.textContent = gameState.snake.length;
+            
+            let speedText = gameState.useFixedSpeed 
+                ? `固定速度 ${config.fixedCellsPerSecond.toFixed(1)} 格/秒`
+                : `动态速度：初始${config.defaultCellsPerSecond.toFixed(1)}格/秒，每次+${config.speedIncrement.toFixed(1)}格/秒`;
+            finalSpeedSetting.textContent = speedText;
+            finalDifficulty.textContent = config.difficultyName[gameState.difficulty];
+            
+            endMask.classList.remove('hidden');
+        }
+
+        function togglePause() {
+            gameState.isPaused = !gameState.isPaused;
+            pauseBtn.textContent = gameState.isPaused ? '继续' : '暂停';
+        }
+
+        function restartGame() {
+            clearInterval(gameState.gameInterval);
+            endMask.classList.add('hidden');
+            initGame();
+            startMask.classList.remove('hidden');
+        }
+
+        function bindEvents() {
+            document.addEventListener('keydown', e => {
+                if (gameState.isPaused && e.key !== 'p') return;
+                switch (e.key) {
+                    case 'ArrowUp': if (gameState.direction !== 'down') gameState.nextDirection = 'up'; break;
+                    case 'ArrowDown': if (gameState.direction !== 'up') gameState.nextDirection = 'down'; break;
+                    case 'ArrowLeft': if (gameState.direction !== 'right') gameState.nextDirection = 'left'; break;
+                    case 'ArrowRight': if (gameState.direction !== 'left') gameState.nextDirection = 'right'; break;
+                    case 'p': togglePause(); break;
+                }
+            });
+
+            document.getElementById('upBtn').onclick = () => {
+                if (gameState.isPaused) return;
+                if (gameState.direction !== 'down') gameState.nextDirection = 'up';
+            };
+            document.getElementById('downBtn').onclick = () => {
+                if (gameState.isPaused) return;
+                if (gameState.direction !== 'up') gameState.nextDirection = 'down';
+            };
+            document.getElementById('leftBtn').onclick = () => {
+                if (gameState.isPaused) return;
+                if (gameState.direction !== 'right') gameState.nextDirection = 'left';
+            };
+            document.getElementById('rightBtn').onclick = () => {
+                if (gameState.isPaused) return;
+                if (gameState.direction !== 'left') gameState.nextDirection = 'right';
+            };
+
+            pauseBtn.onclick = togglePause;
+            restartBtn.onclick = restartGame;
+            realStartBtn.onclick = startRealGame;
+            restartFromEnd.onclick = restartGame;
+            backHome.onclick = () => window.location.href = 'games.html';
+            fixedSpeedToggle.addEventListener('change', toggleSettingsGroups);
+            saveSettingsBtn.addEventListener('click', saveSettings);
+        }
+
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

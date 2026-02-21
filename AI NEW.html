@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LZR IA - 没用的问答助手</title>
+    <!-- 引入外部CSS样式文件 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <!-- 顶部导航栏 -->
+<nav class="navbar">
+    <div class="navbar-logo">
+        <img src="LZR.jpg" alt="LZR IA Logo">
+        <h2><a href="http://127.0.0.1:3000/AI NEW.html?serverWindowId=ec44df0c-318d-4e74-94fd-4a93b69b21f5">LZR IA</a></h2>
+    </div>
+    
+    <!-- PC端菜单（保持不变） -->
+    <div class="navbar-menu">
+        <button class="active">首页</button>
+        <button id="kbBtn">知识库</button>
+        <button id="moreBtn">更多</button>
+        <button><a href="http://127.0.0.1:3000/AI NEW.html?serverWindowId=ec44df0c-318d-4e74-94fd-4a93b69b21f5" target="_blank" rel="noopener noreferrer">新的对话</a></button>
+        <button><a href="官网.html" target="_blank" rel="noopener noreferrer">退回官网</a></button>
+    </div>
+    
+    <!-- 移动端菜单按钮（移到这里，和.navbar-menu同级） -->
+    <button class="mobile-menu-btn">☰</button>
+</nav>
+    <!-- 操作提示框 -->
+    <div id="operationTip" class="operation-tip">操作提示</div>
+
+    <!-- 聊天容器 -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="LZR.jpg" alt="LZR">
+            <h1>LZR IA</h1>
+            LZR Intelligence Artificial 
+            <p>没用的问答助手</p>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- 欢迎消息 -->
+            <div class="message ai-message">
+                <span class="typing-effect">你好！我是LZR IA。有什么可以帮到你？
+                    (下方输入框输入“帮助”可以查看指南！)</span>
+                <span class="message-time"></span>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="在此输入问题" autocomplete="off">
+            </div>
+           <a href="https://www.deepseek.com/" 
+   target="_blank" 
+   rel="noopener noreferrer"
+   class="btn btn-think" 
+   id="thinkBtn" 
+   title="思考">
+    <svg class="icon" viewBox="0 0 1024 1024" fill="currentColor">
+        <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+        <path d="M464 336a48 48 0 1 0 96 0 48 48 0 1 0-96 0zm72 112c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8h-48z"></path>
+    </svg>
+    <span style="margin-left: 4px;">思考</span>
+</a>
+                <!-- 搜索按钮 -->
+                <button class="btn btn-search" id="searchBtn" title="调用DeepSeek API">
+                    <svg class="icon" viewBox="0 0 1024 1024" fill="currentColor">
+                        <path d="M909.6 854.5L649.9 594.8C690.2 542.7 712 479 712 412c0-80.2-31.3-155.4-87.9-212.1-56.6-56.7-132-87.9-212.1-87.9s-155.5 31.3-212.1 87.9C143.2 256.5 112 331.8 112 412c0 80.1 31.3 155.5 87.9 212.1C256.5 680.8 331.8 712 412 712c67 0 130.6-21.8 182.7-62l259.7 259.6a8.2 8.2 0 0 0 11.6 0l43.6-43.5a8.2 8.2 0 0 0 0-11.6zM570.4 570.4C528 612.7 471.8 636 412 636s-116-23.3-158.4-65.6C205.3 528 182 471.8 182 412s23.3-116.1 65.6-158.4C296 205.3 352.2 182 412 182s116.1 23.3 158.4 65.6C612.7 296 636 352.2 636 412s-23.3 116.1-65.6 158.4z"></path>
+                    </svg>
+                    <span style="margin-left: 4px;">搜索</span>
+                </button>
+                <button class="btn btn-icon" id="sendBtn" title="发送">
+                    <svg class="icon" viewBox="0 0 1024 1024" fill="currentColor">
+                        <path d="M931.4 498.9c-16.1-22.9-48.8-28.6-71.7-12.5L768 567.4 256 208c-16.4-11.8-39.2-11.1-54.9 1.6-15.7 12.7-19.4 34.9-8 51.6l456.5 568.3c12.6 15.7 35.4 19.4 51.6 8 15.7-12.6 19.4-35.4 8-51.6L513.1 512l418.3-300.6c22.9-16.1 28.6-48.8 12.5-71.7-16.1-22.9-48.8-28.6-71.7-12.5L431.9 361.3 135.9 156.1C120.2 146.2 98.1 150 85.6 165.8 73.1 181.5 76.9 203.6 92.6 216.1l300.6 205.2L92.6 626.9c-15.7 12.5-19.5 34.6-8 50.3 11.5 15.7 33.6 19.5 50.3 8l300.6-205.2 205.2 300.6c12.5 15.7 34.6 19.5 50.3 8 15.7-11.5 19.5-33.6 8-50.3L513.1 512l418.3 300.6c22.9 16.1 28.6 48.8 12.5 71.7-16.1 22.9-48.8 28.6-71.7-12.5L431.9 662.7 135.9 867.9c-15.7 12.6-37.8 12.1-52.9-1.2-15.1-13.3-16.6-35.4-3.5-51.1l300.6-364.5L80.5 147.1c-13.1-15.8-11.6-38 3.2-51.1 14.8-13.1 36.9-11.6 51.1 3.2l300.6 364.5 205.2-300.6c12.6-15.7 34.7-19.4 51.1-8 16.4 11.4 19.4 33.5 8 51.1L513.1 512z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义知识库模态框 -->
+    <div id="knowledgeBaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>Knowledge Base-知识库</h1>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="kb-switch">
+                    <span>当前使用：</span>
+                    <button id="officialKbBtn" class="kb-switch-btn active">官方知识库</button>
+                    <button id="customKbBtn" class="kb-switch-btn">自定义知识库</button>
+                </div>
+                <div class="settings-section"></div>
+                <div class="custom-kb-list" id="customKbList">
+                    <!-- 自定义问答列表动态生成 -->
+                </div>
+                <div class="settings-section"></div>
+                <div class="custom-kb-form">
+                    <h4>在自定义知识库中添加新的问答</h4>
+                    <div class="kb-type-switch">
+                        <span>添加类型：</span>
+                        <button id="fixedKbTypeBtn" class="kb-type-switch-btn active">固定精准问答</button>
+                        <button id="keywordKbTypeBtn" class="kb-type-switch-btn">关键词模糊问答</button>
+                    </div>
+                    <input type="text" id="customQuestion" placeholder="输入问题（固定问答填完整问题，关键词问答填关键词）" />
+                    <input type="text" id="customAnswer" placeholder="输入回答" />
+                    <button id="saveCustomKb" class="btn">保存问答</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置模态框 -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>MORE-更多</h1>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 主题设置 -->
+                <div class="settings-section">
+                    <h4>显示设置</h4>
+                    <div class="settings-option">
+                        <span>夜间模式（黑色背景）</span>
+                        <label class="settings-toggle">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-option">
+                        <span>聊天内加粗字体</span>
+                        <label class="settings-toggle">
+                            <input type="checkbox" id="fontBoldToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- DeepSeek API Key 设置 -->
+                <div class="settings-section">
+                    <h4>DeepSeek API 设置</h4>
+                    <div class="api-settings-group">
+                        <span>API Key（仅本地存储，不会泄露）</span>
+                        <input type="password" id="deepseekApiKey" placeholder="输入你的DeepSeek API Key（sk-开头）" />
+                        <button id="saveApiKeyBtn" class="btn save-api-btn">保存API Key</button>
+                        <div class="settings-section"></div>
+                        <h4>网页跳转</h4>
+                      <a href="https://platform.deepseek.com/usage" target="_blank" rel="noopener noreferrer">DeepSeek API-用量信息</a>
+                      <a href="https://cn.bing.com/?mkt=zh-CN" target="_blank" rel="noopener noreferrer">Bing</a>
+                      <a href="https://wx.qq.com/" target="_blank" rel="noopener noreferrer">WeChat</a>
+                    </div>
+                </div>
+
+                <!-- 提示区域 -->
+                <div class="reserved-area">
+                    <h4>此AI网站仅供娱乐使用</h4>
+                    <p>我们将不承担一切后果 其中包括DeepSeek API Key的安全</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入外部JS文件（顺序：先知识库，再主逻辑） -->
+    <script src="knowledge-base.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

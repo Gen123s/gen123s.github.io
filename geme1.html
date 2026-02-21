@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>俄罗斯方块 | 游戏中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            color: white;
+        }
+        
+        /* 背景装饰 */
+        .bg-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-decoration::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: bgMove 20s linear infinite;
+        }
+        
+        @keyframes bgMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* 毛玻璃效果 */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 按钮动画 */
+        .btn-hover {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-hover::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-hover:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* 游戏画布容器 */
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            border-radius: 0.75rem;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: borderGlow 3s linear infinite;
+            background-size: 400% 400%;
+        }
+        
+        .canvas-container:hover::before {
+            opacity: 0.7;
+        }
+        
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 下一个方块预览样式 */
+        .next-piece-preview {
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .preview-canvas {
+            width: 90px;
+            height: 90px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-decoration"></div>
+    
+    <!-- 头部导航 -->
+    <header class="glass sticky top-0 z-50 mb-6">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="games.html" class="flex items-center space-x-2">
+                <i class="fas fa-arrow-left text-lg"></i>
+                <span class="font-medium">返回游戏中心</span>
+            </a>
+            <h1 class="text-xl font-bold">俄罗斯方块</h1>
+            <div class="w-16"></div> <!-- 占位 -->
+        </div>
+    </header>
+    
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4">
+        <div class="max-w-md mx-auto">
+            <!-- 游戏容器 -->
+            <div class="glass rounded-xl p-6 mb-6 relative">
+                <!-- 开始游戏遮罩 -->
+                <div id="startMask" class="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center z-50">
+                    <button id="realStartBtn" class="btn-hover bg-gradient-to-r from-pink-500 to-purple-500 text-white text-lg px-8 py-4 rounded-lg font-medium">
+                        开始游戏
+                    </button>
+                </div>
+                
+                <!-- 游戏结束结算遮罩 -->
+                <div id="endMask" class="absolute inset-0 bg-black/80 rounded-xl flex flex-col items-center justify-center z-50 hidden">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold mb-2 text-white">游戏结束</h2>
+                        <p class="text-lg mb-1 text-white">最终得分：<span id="finalScore" class="text-yellow-300 font-bold">0</span></p>
+                        <p class="text-lg text-white">达到等级：<span id="finalLevel" class="text-blue-300 font-bold">1</span></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="restartFromEnd" class="btn-hover bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-medium">重新开始</button>
+                        <button id="backHome" class="btn-hover bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg font-medium"
+        onclick="window.location.href='games.html'">
+    返回主页
+</button>
+                    </div>
+                </div>
+                
+                <!-- 游戏信息 -->
+                <div class="flex justify-between mb-4 items-center">
+                    <div class="text-center">
+                        <div class="text-sm text-white/70">分数</div>
+                        <div class="text-2xl font-bold text-pink-400" id="score">0</div>
+                    </div>
+                    <!-- 下一个方块预览 -->
+                    <div class="text-center">
+                        <div class="text-sm text-white/70">下一个方块</div>
+                        <div class="next-piece-preview mx-auto">
+                            <canvas id="previewCanvas" class="preview-canvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-white/70">等级</div>
+                        <div class="text-2xl font-bold text-cyan-400" id="level">1</div>
+                    </div>
+                </div>
+                
+                <!-- 游戏画布 -->
+                <div class="flex justify-center mb-6">
+                    <div class="canvas-container">
+                        <canvas id="tetrisCanvas" width="300" height="600" class="border border-white/20 rounded-lg bg-black/20"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 移动端操作按钮 -->
+                <div class="grid grid-cols-3 gap-3 mb-6 md:hidden">
+                    <button id="leftBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </button>
+                    <div class="grid grid-rows-2 gap-3">
+                        <button id="rotateBtn" class="btn-hover bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-medium">旋转</button>
+                        <button id="downBtn" class="btn-hover glass text-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-arrow-down text-lg"></i>
+                        </button>
+                    </div>
+                    <button id="rightBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-right text-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- 控制按钮 -->
+                <div class="flex gap-3 justify-center">
+                    <button id="pauseBtn" class="btn-hover bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium">暂停</button>
+                    <button id="restartBtn" class="btn-hover bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-2 rounded-lg font-medium">重新开始</button>
+                </div>
+            </div>
+            
+            <!-- 操作说明 -->
+            <div class="glass rounded-xl p-6">
+                <h3 class="font-semibold text-lg mb-3">操作说明</h3>
+                <div class="space-y-2 text-white/80">
+                    <p>🖥️ PC端：↑ 旋转 | ← → 移动 | ↓ 加速下落 | 空格 直接下落 | P 暂停</p>
+                    <p>📱 移动端：点击对应按钮操作</p>
+                    <p>💡 消除一行得100分，简单形状优先出现，难度更低</p>
+                    <p>⭐ 等级提升速度更慢，游戏节奏更轻松</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // 游戏配置 - 调整为更简单的设置
+        const config = {
+            rows: 20,
+            cols: 10,
+            cellSize: 30,
+            speed: 1500, // 初始速度更慢
+            speedStep: 50, // 等级提升时减速幅度更小
+            maxSpeed: 500, // 最快速度也比原来慢
+            scorePerLine: 100,
+            levelStep: 800 // 需要更多分数才升级，降低难度
+        };
+
+        // 方块形状和颜色
+        const shapes = [
+            { matrix: [[1,1,1,1]], color: '#00FFFF' }, // 直线
+            { matrix: [[1,1],[1,1]], color: '#FFFF00' }, // 正方形
+            { matrix: [[0,1,0],[1,1,1]], color: '#9900FF' }, // T型
+            { matrix: [[0,0,1],[1,1,1]], color: '#FF9900' }, // L型
+            { matrix: [[1,0,0],[1,1,1]], color: '#0000FF' }, // 反L型
+            { matrix: [[0,1,1],[1,1,0]], color: '#00FF00' }, // Z型
+            { matrix: [[1,1,0],[0,1,1]], color: '#FF0000' } // 反Z型
+        ];
+
+        // 形状权重 - 简单形状出现概率更高
+        const shapeWeights = [
+            0.3,  // 直线 - 30%
+            0.3,  // 正方形 - 30% 
+            0.1,  // T型 - 10%
+            0.1,  // L型 - 10%
+            0.1,  // 反L型 - 10%
+            0.05, // Z型 - 5%
+            0.05  // 反Z型 - 5%
+        ];
+
+        // 游戏状态
+        let gameState = {
+            canvas: null,
+            ctx: null,
+            previewCanvas: null,
+            previewCtx: null,
+            grid: [],
+            currentPiece: null,
+            nextPiece: null, // 下一个方块
+            currentX: 0,
+            currentY: 0,
+            score: 0,
+            level: 1,
+            isPaused: true,
+            gameInterval: null,
+            speed: config.speed
+        };
+
+        // DOM元素
+        const startMask = document.getElementById('startMask');
+        const endMask = document.getElementById('endMask');
+        const realStartBtn = document.getElementById('realStartBtn');
+        const finalScore = document.getElementById('finalScore');
+        const finalLevel = document.getElementById('finalLevel');
+        const restartFromEnd = document.getElementById('restartFromEnd');
+        const backHome = document.getElementById('backHome');
+
+        // 初始化游戏
+        function initGame() {
+            // 主画布初始化
+            gameState.canvas = document.getElementById('tetrisCanvas');
+            gameState.ctx = gameState.canvas.getContext('2d');
+            
+            // 预览画布初始化
+            gameState.previewCanvas = document.getElementById('previewCanvas');
+            gameState.previewCtx = gameState.previewCanvas.getContext('2d');
+            gameState.previewCanvas.width = 90;
+            gameState.previewCanvas.height = 90;
+            
+            gameState.grid = Array(config.rows).fill().map(() => Array(config.cols).fill(null));
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.speed = config.speed;
+            gameState.isPaused = true;
+
+            updateScore();
+            updateLevel();
+            
+            // 生成第一个方块和下一个方块
+            gameState.nextPiece = getWeightedRandomShape();
+            spawnPiece();
+            
+            drawGame();
+            drawNextPiece(); // 绘制下一个方块预览
+            bindEvents();
+        }
+
+        // 按权重随机获取形状 - 简单形状概率更高
+        function getWeightedRandomShape() {
+            const random = Math.random();
+            let cumulativeProbability = 0;
+            
+            for (let i = 0; i < shapeWeights.length; i++) {
+                cumulativeProbability += shapeWeights[i];
+                if (random <= cumulativeProbability) {
+                    return JSON.parse(JSON.stringify(shapes[i]));
+                }
+            }
+            
+            // 保底返回正方形
+            return JSON.parse(JSON.stringify(shapes[1]));
+        }
+
+        // 开始游戏
+        function startRealGame() {
+            startMask.classList.add('hidden');
+            gameState.isPaused = false;
+            startGameLoop();
+        }
+
+        // 生成新方块
+        function spawnPiece() {
+            // 使用预先生成的下一个方块
+            gameState.currentPiece = gameState.nextPiece;
+            // 生成新的下一个方块
+            gameState.nextPiece = getWeightedRandomShape();
+            
+            gameState.currentX = Math.floor((config.cols - gameState.currentPiece.matrix[0].length) / 2);
+            gameState.currentY = 0;
+
+            if (!isValidMove(0, 0)) gameOver();
+            drawGame();
+            drawNextPiece(); // 更新下一个方块预览
+        }
+
+        // 绘制下一个方块预览
+        function drawNextPiece() {
+            const ctx = gameState.previewCtx;
+            const size = 20; // 预览格子大小
+            ctx.clearRect(0, 0, gameState.previewCanvas.width, gameState.previewCanvas.height);
+            
+            const matrix = gameState.nextPiece.matrix;
+            // 计算居中偏移
+            const offsetX = (gameState.previewCanvas.width - matrix[0].length * size) / 2;
+            const offsetY = (gameState.previewCanvas.height - matrix.length * size) / 2;
+            
+            // 绘制预览方块
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    if (matrix[row][col]) {
+                        ctx.fillStyle = gameState.nextPiece.color;
+                        ctx.fillRect(
+                            offsetX + col * size, 
+                            offsetY + row * size, 
+                            size - 1, 
+                            size - 1
+                        );
+                        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                        ctx.strokeRect(
+                            offsetX + col * size, 
+                            offsetY + row * size, 
+                            size - 1, 
+                            size - 1
+                        );
+                    }
+                }
+            }
+        }
+
+        // 绘制游戏背景方格（核心新增）
+        function drawBackgroundGrid() {
+            const ctx = gameState.ctx;
+            const size = config.cellSize;
+            // 淡白色半透明网格，不影响游戏视觉
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1;
+
+            // 绘制竖线
+            for (let x = 0; x <= config.cols; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * size, 0);
+                ctx.lineTo(x * size, config.rows * size);
+                ctx.stroke();
+            }
+
+            // 绘制横线
+            for (let y = 0; y <= config.rows; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * size);
+                ctx.lineTo(config.cols * size, y * size);
+                ctx.stroke();
+            }
+        }
+
+        // 绘制游戏
+        function drawGame() {
+            gameState.ctx.clearRect(0, 0, gameState.canvas.width, gameState.canvas.height);
+            drawBackgroundGrid(); // 先画背景方格
+            drawGrid();
+            drawPiece();
+        }
+
+        function drawGrid() {
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols; col++) {
+                    if (gameState.grid[row][col]) drawCell(col, row, gameState.grid[row][col]);
+                }
+            }
+        }
+
+        function drawPiece() {
+            const matrix = gameState.currentPiece.matrix;
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    if (matrix[row][col]) drawCell(gameState.currentX + col, gameState.currentY + row, gameState.currentPiece.color);
+                }
+            }
+        }
+
+        function drawCell(x, y, color) {
+            const ctx = gameState.ctx;
+            const size = config.cellSize;
+            ctx.fillStyle = color;
+            ctx.fillRect(x * size, y * size, size - 1, size - 1);
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.strokeRect(x * size, y * size, size - 1, size - 1);
+        }
+
+        // 移动与碰撞检测
+        function isValidMove(dx, dy, newMatrix = null) {
+            const matrix = newMatrix || gameState.currentPiece.matrix;
+            const newX = gameState.currentX + dx;
+            const newY = gameState.currentY + dy;
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    if (matrix[row][col]) {
+                        const x = newX + col;
+                        const y = newY + row;
+                        if (x < 0 || x >= config.cols || y >= config.rows) return false;
+                        if (y >= 0 && gameState.grid[y][x]) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function movePiece(dx, dy) {
+            if (gameState.isPaused) return;
+            if (isValidMove(dx, dy)) {
+                gameState.currentX += dx;
+                gameState.currentY += dy;
+                drawGame();
+                return true;
+            }
+            if (dy > 0) {
+                lockPiece();
+                clearLines();
+                spawnPiece();
+                return false;
+            }
+            return false;
+        }
+
+        function rotatePiece() {
+            if (gameState.isPaused) return;
+            const matrix = gameState.currentPiece.matrix;
+            const rotated = [];
+            for (let col = 0; col < matrix[0].length; col++) {
+                const newRow = [];
+                for (let row = matrix.length - 1; row >= 0; row--) newRow.push(matrix[row][col]);
+                rotated.push(newRow);
+            }
+            if (isValidMove(0, 0, rotated)) {
+                gameState.currentPiece.matrix = rotated;
+                drawGame();
+            }
+        }
+
+        function lockPiece() {
+            const matrix = gameState.currentPiece.matrix;
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    if (matrix[row][col]) {
+                        const x = gameState.currentX + col;
+                        const y = gameState.currentY + row;
+                        if (y >= 0) gameState.grid[y][x] = gameState.currentPiece.color;
+                    }
+                }
+            }
+        }
+
+        // 消除行与计分 - 调整为更容易得分
+        function clearLines() {
+            let linesCleared = 0;
+            for (let row = config.rows - 1; row >= 0; row--) {
+                if (gameState.grid[row].every(cell => cell)) {
+                    linesCleared++;
+                    // 行消除后下落更平滑
+                    for (let r = row; r > 0; r--) gameState.grid[r] = [...gameState.grid[r - 1]];
+                    gameState.grid[0] = Array(config.cols).fill(null);
+                    row++;
+                }
+            }
+            if (linesCleared > 0) {
+                // 调整计分，更容易得分
+                const lineScores = [0, 150, 400, 600, 900]; // 基础分更高
+                gameState.score += lineScores[linesCleared] * gameState.level;
+                updateScore();
+                checkLevelUp();
+            }
+        }
+
+        function checkLevelUp() {
+            const newLevel = Math.floor(gameState.score / config.levelStep) + 1;
+            if (newLevel > gameState.level) {
+                gameState.level = newLevel;
+                updateLevel();
+                // 速度调整更平缓
+                gameState.speed = Math.max(config.speed - (gameState.level - 1) * config.speedStep, config.maxSpeed);
+                restartGameLoop();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = gameState.score;
+        }
+
+        function updateLevel() {
+            document.getElementById('level').textContent = gameState.level;
+        }
+
+        // 游戏循环
+        function startGameLoop() {
+            if (gameState.gameInterval) clearInterval(gameState.gameInterval);
+            gameState.gameInterval = setInterval(() => {
+                if (!gameState.isPaused) movePiece(0, 1);
+            }, gameState.speed);
+        }
+
+        function restartGameLoop() {
+            startGameLoop();
+        }
+
+        function togglePause() {
+            gameState.isPaused = !gameState.isPaused;
+            document.getElementById('pauseBtn').textContent = gameState.isPaused ? '继续' : '暂停';
+        }
+
+        // 重新开始游戏
+        function restartGame() {
+            if (gameState.gameInterval) clearInterval(gameState.gameInterval);
+            endMask.classList.add('hidden');
+            initGame();
+            startMask.classList.remove('hidden');
+        }
+
+        // 游戏结束
+        function gameOver() {
+            gameState.isPaused = true;
+            if (gameState.gameInterval) clearInterval(gameState.gameInterval);
+            finalScore.textContent = gameState.score;
+            finalLevel.textContent = gameState.level;
+            endMask.classList.remove('hidden');
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 键盘控制
+            document.addEventListener('keydown', (e) => {
+                if (gameState.isPaused && e.key !== 'p' && e.key !== 'P') return;
+                switch(e.key) {
+                    case 'ArrowLeft': movePiece(-1, 0); break;
+                    case 'ArrowRight': movePiece(1, 0); break;
+                    case 'ArrowDown': movePiece(0, 1); break;
+                    case 'ArrowUp': rotatePiece(); break;
+                    case ' ': while (movePiece(0, 1)); break;
+                    case 'p': 
+                    case 'P': togglePause(); break;
+                }
+            });
+
+            // 移动端按钮
+            document.getElementById('leftBtn').addEventListener('click', () => movePiece(-1, 0));
+            document.getElementById('rightBtn').addEventListener('click', () => movePiece(1, 0));
+            document.getElementById('downBtn').addEventListener('click', () => movePiece(0, 1));
+            document.getElementById('rotateBtn').addEventListener('click', () => rotatePiece());
+            document.getElementById('pauseBtn').addEventListener('click', togglePause);
+            document.getElementById('restartBtn').addEventListener('click', restartGame);
+
+            // 开始与结算按钮
+            realStartBtn.addEventListener('click', startRealGame);
+            restartFromEnd.addEventListener('click', restartGame);
+            backHome.addEventListener('click', () => window.location.href = 'games.html');
+        }
+
+        // 页面加载初始化
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

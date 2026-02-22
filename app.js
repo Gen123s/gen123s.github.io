@@ -131,7 +131,7 @@ async function callDeepSeekAPI(question) {
             body: JSON.stringify({
                 model: DEEPSEEK_CONFIG.model,
                 messages: [
-                    { role: "user", content: question }
+                    { system:["{role:'我是LZR IA', name:"['黎子睿', '子睿', 'lzr', '李子瑞', '黎梓睿']"， goal:'傻傻的聊天'], content: question }
                 ],
                 temperature: 0.7,
                 max_tokens: 1000
@@ -583,6 +583,7 @@ window.addEventListener('load', () => {
     // 初始化自定义问答类型切换
     switchCustomKbType('fixed');
 });
+
 
 
 

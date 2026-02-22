@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>五子棋 | 游戏中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入：LZR AI 五子棋人机大脑 -->
+    <script src="LZR IA-wuziqi.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+    background: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    color: white;
+    transition: background 0.4s ease !important;
+    -webkit-transition: background 0.4s ease !important;
+}
+
+/* 蓝方/红方 背景色（手机浏览器兼容版） */
+body.blue-turn {
+    background: #4facfe;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+body.red-turn {
+    background: #ff416c;
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+}
+        
+        /* 背景装饰 */
+        .bg-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-decoration::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: bgMove 20s linear infinite;
+        }
+        
+        @keyframes bgMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* 毛玻璃效果（仅面板用，按钮不用） */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 灰色普通按钮 - 无玻璃，高可见度 */
+        .btn-gray {
+            background: #444444;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-gray:hover {
+            background: #555555;
+        }
+        .btn-gray:active {
+            background: #333333;
+        }
+        
+        /* 彩色按钮保留样式 */
+        .btn-color {
+            border: none;
+            border-radius: 0.5rem;
+            transition: opacity 0.2s ease;
+        }
+        .btn-color:hover {
+            opacity: 0.9;
+        }
+        
+        /* 棋盘容器 */
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            border-radius: 0.75rem;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: borderGlow 3s linear infinite;
+            background-size: 400% 400%;
+        }
+        
+        .canvas-container:hover::before {
+            opacity: 0.7;
+        }
+        
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 游戏区域翻转（仅2P使用，双向动画） */
+        .flip-container {
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .flip-180 {
+            transform: rotate(180deg);
+        }
+        
+        /* 光标高亮 */
+        .cursor-highlight {
+            position: absolute;
+            border: 2px solid #fff;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            animation: cursorFlash 1s infinite alternate;
+        }
+        
+        @keyframes cursorFlash {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* 落子动画 */
+        .piece-animation {
+            animation: pieceDrop 0.3s ease forwards;
+        }
+        
+        @keyframes pieceDrop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 胜利特效 */
+        .win-effect {
+            animation: winPulse 1s infinite alternate;
+        }
+        
+        @keyframes winPulse {
+            0% { text-shadow: 0 0 5px #fff; }
+            100% { text-shadow: 0 0 20px #fff; }
+        }
+
+        /* AI思考动画 */
+        .ai-thinking {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+            margin-right: 6px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 彩带粒子容器 */
+        #confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 彩带容器 -->
+    <div id="confetti"></div>
+    <!-- 背景装饰 -->
+    <div class="bg-decoration"></div>
+    
+    <!-- 头部导航 -->
+    <header class="glass sticky top-0 z-50 mb-6">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="games.html" class="flex items-center space-x-2">
+                <i class="fas fa-arrow-left text-lg"></i>
+                <span class="font-medium">返回游戏中心</span>
+            </a>
+            <h1 class="text-xl font-bold">五子棋</h1>
+            <div class="w-16"></div>
+        </div>
+    </header>
+    
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4">
+        <div class="max-w-md mx-auto">
+            <!-- 时间信息栏 -->
+            <div class="glass rounded-xl p-4 mb-4 flex justify-between items-center">
+                <div>
+                    <p class="text-sm text-white/70">当前时间</p>
+                    <p id="realTime" class="font-bold">00:00:00</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-white/70">对局时长</p>
+                    <p id="gameTime" class="font-bold">00:00</p>
+                </div>
+            </div>
+
+            <!-- 模式&难度选择 -->
+            <div class="glass rounded-xl p-4 mb-4 space-y-3">
+                <h3 class="font-semibold text-lg">游戏模式</h3>
+                <div class="flex gap-2">
+                    <!-- 人机对战：红色渐变 -->
+                    <button id="aiModeBtn" class="flex-1 bg-gradient-to-r from-red-500 to-pink-500 px-3 py-2 rounded-lg font-medium text-white">
+                        与LZR对战
+                    </button>
+                    <!-- 2P对战：蓝到红渐变 -->
+                    <button id="2pModeBtn" class="flex-1 bg-gradient-to-r from-blue-500 to-red-500 px-3 py-2 rounded-lg font-medium text-white">
+                        2P对战
+                    </button>
+                </div>
+
+                <!-- 人机难度 -->
+                <div id="aiDifficulty" class="space-y-2 mt-2">
+                    <h3 class="font-semibold">难度-LZR IA聪明度</h3>
+                    <div class="flex gap-2">
+                        <button data-diff="easy" class="diff-btn flex-1 bg-green-500/30 px-2 py-1 rounded-lg text-sm text-white">简单</button>
+                        <button data-diff="normal" class="diff-btn flex-1 bg-yellow-500/30 px-2 py-1 rounded-lg text-sm text-white">默认</button>
+                        <button data-diff="hard" class="diff-btn flex-1 bg-red-500/30 px-2 py-1 rounded-lg text-sm text-white">困难</button>
+                    </div>
+                </div>
+
+                <button id="startGameBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 py-2 rounded-lg font-medium text-white">
+                    开始游戏
+                </button>
+            </div>
+
+            <!-- 游戏状态 -->
+            <div class="glass rounded-xl p-3 mb-4 text-center">
+                <h2 id="gameStatus" class="text-lg font-bold win-effect">请选择模式开始游戏</h2>
+            </div>
+
+            <!-- 可翻转游戏区域（棋盘+控制按钮） -->
+            <div class="flip-container" id="gameFlipArea">
+                <!-- 棋盘容器 -->
+                <div class="glass rounded-xl p-6 mb-6 relative flex justify-center">
+                    <div class="canvas-container relative">
+                        <canvas id="gobangCanvas" width="360" height="360" class="rounded-lg bg-black/10"></canvas>
+                        <div id="cursorHighlight" class="cursor-highlight hidden"></div>
+                    </div>
+                </div>
+
+                <!-- 控制按钮（灰色普通按钮，高可见度） -->
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div></div>
+                    <button id="upBtn" class="btn-gray">
+                        <i class="fas fa-arrow-up text-lg"></i>
+                    </button>
+                    <div></div>
+                    <button id="leftBtn" class="btn-gray">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </button>
+                    <button id="downBtn" class="btn-gray">
+                        <i class="fas fa-arrow-down text-lg"></i>
+                    </button>
+                    <button id="rightBtn" class="btn-gray">
+                        <i class="fas fa-arrow-right text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="flex gap-3 justify-center mb-6">
+                    <button id="putBtn" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg font-medium">
+                        落子
+                    </button>
+                    <button id="resetBtn" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-lg font-medium">
+                        重置
+                    </button>
+                </div>
+            </div>
+
+            <!-- 操作说明 -->
+            <div class="glass rounded-xl p-4 mb-6">
+                <h3 class="font-semibold mb-2">操作说明</h3>
+                <p class="text-white/80 text-sm">🎮 上下左右按钮移动光标</p>
+                <p class="text-white/80 text-sm">🎯 落子按钮确认下棋</p>
+                <p class="text-white/80 text-sm">🔄 2P模式自动翻转游戏区域对战</p>
+                <p class="text-white/80 text-sm">🏆 先连成5子即可获得胜利</p>
+                <p>部分设备可能会出现背景变成白色的情况</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 基础配置
+        const config = {
+            gridSize: 24,
+            boardSize: 15,
+            pieceRadius: 10,
+            gameMode: "ai", // ai / 2p
+            aiDifficulty: "normal", // easy / normal / hard
+            isGameStart: false,
+            isGameOver: false
+        };
+
+        // 游戏状态
+        const gameState = {
+            board: Array(config.boardSize).fill().map(() => Array(config.boardSize).fill(0)), // 0空 1蓝(用户) 2红(AI/玩家2)
+            currentPlayer: 1, // 1蓝 2红
+            cursorX: 7,
+            cursorY: 7,
+            gameSecond: 0,
+            timeInterval: null,
+            realTimeInterval: null
+        };
+
+        // DOM元素
+        const dom = {
+            body: document.body,
+            confetti: document.getElementById("confetti"),
+            realTime: document.getElementById("realTime"),
+            gameTime: document.getElementById("gameTime"),
+            gameStatus: document.getElementById("gameStatus"),
+            cursorHighlight: document.getElementById("cursorHighlight"),
+            canvas: document.getElementById("gobangCanvas"),
+            ctx: null,
+            gameFlipArea: document.getElementById("gameFlipArea"),
+
+            aiModeBtn: document.getElementById("aiModeBtn"),
+            p2ModeBtn: document.getElementById("2pModeBtn"),
+            aiDifficulty: document.getElementById("aiDifficulty"),
+            diffBtns: document.querySelectorAll(".diff-btn"),
+            startGameBtn: document.getElementById("startGameBtn"),
+
+            upBtn: document.getElementById("upBtn"),
+            downBtn: document.getElementById("downBtn"),
+            leftBtn: document.getElementById("leftBtn"),
+            rightBtn: document.getElementById("rightBtn"),
+            putBtn: document.getElementById("putBtn"),
+            resetBtn: document.getElementById("resetBtn")
+        };
+
+        dom.ctx = dom.canvas.getContext("2d");
+
+        // 初始化
+        function init() {
+            drawBoard();
+            updateCursor();
+            initRealTime();
+            bindEvents();
+            switchMode("ai");
+        }
+
+        // 实时时间
+        function initRealTime() {
+            updateRealTime();
+            dom.realTimeInterval = setInterval(updateRealTime, 1000);
+        }
+
+        function updateRealTime() {
+            const date = new Date();
+            const h = String(date.getHours()).padStart(2, "0");
+            const m = String(date.getMinutes()).padStart(2, "0");
+            const s = String(date.getSeconds()).padStart(2, "0");
+            dom.realTime.textContent = `${h}:${m}:${s}`;
+        }
+
+        // 对局时间
+        function startGameTime() {
+            gameState.gameSecond = 0;
+            updateGameTime();
+            clearInterval(gameState.timeInterval);
+            gameState.timeInterval = setInterval(updateGameTime, 1000);
+        }
+
+        function updateGameTime() {
+            const m = String(Math.floor(gameState.gameSecond / 60)).padStart(2, "0");
+            const s = String(gameState.gameSecond % 60).padStart(2, "0");
+            dom.gameTime.textContent = `${m}:${s}`;
+            gameState.gameSecond++;
+        }
+
+        // 模式切换
+        function switchMode(mode) {
+            config.gameMode = mode;
+            if (mode === "ai") {
+                dom.aiDifficulty.classList.remove("hidden");
+                dom.aiModeBtn.classList.add("ring-2", "ring-white");
+                dom.p2ModeBtn.classList.remove("ring-2", "ring-white");
+            } else {
+                dom.aiDifficulty.classList.add("hidden");
+                dom.p2ModeBtn.classList.add("ring-2", "ring-white");
+                dom.aiModeBtn.classList.remove("ring-2", "ring-white");
+            }
+        }
+
+        // 绘制棋盘
+        function drawBoard() {
+            const ctx = dom.ctx;
+            ctx.clearRect(0, 0, 360, 360);
+            ctx.strokeStyle = "rgba(255,255,255,0.6)";
+            ctx.lineWidth = 1;
+
+            // 绘制网格
+            for (let i = 0; i < config.boardSize; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * config.gridSize + config.gridSize/2, config.gridSize/2);
+                ctx.lineTo(i * config.gridSize + config.gridSize/2, 360 - config.gridSize/2);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(config.gridSize/2, i * config.gridSize + config.gridSize/2);
+                ctx.lineTo(360 - config.gridSize/2, i * config.gridSize + config.gridSize/2);
+                ctx.stroke();
+            }
+
+            // 绘制棋子
+            for (let y = 0; y < config.boardSize; y++) {
+                for (let x = 0; x < config.boardSize; x++) {
+                    const val = gameState.board[y][x];
+                    if (val !== 0) {
+                        drawPiece(x, y, val);
+                    }
+                }
+            }
+        }
+
+        // 绘制棋子
+        function drawPiece(x, y, player) {
+            const ctx = dom.ctx;
+            const cx = x * config.gridSize + config.gridSize/2;
+            const cy = y * config.gridSize + config.gridSize/2;
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, config.pieceRadius, 0, Math.PI * 2);
+            ctx.fillStyle = player === 1 ? "#4facfe" : "#ff416c";
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        // 光标更新
+        function updateCursor() {
+            const ch = dom.cursorHighlight;
+            const x = gameState.cursorX * config.gridSize;
+            const y = gameState.cursorY * config.gridSize;
+            ch.style.left = x + "px";
+            ch.style.top = y + "px";
+            ch.style.width = config.gridSize + "px";
+            ch.style.height = config.gridSize + "px";
+            ch.classList.remove("hidden");
+        }
+
+        // 落子
+        function putPiece() {
+            const x = gameState.cursorX;
+            const y = gameState.cursorY;
+
+            if (gameState.board[y][x] !== 0 || config.isGameOver || !config.isGameStart) return;
+
+            // 落子
+            gameState.board[y][x] = gameState.currentPlayer;
+            drawBoard();
+
+            // 判断胜利
+            if (checkWin(x, y, gameState.currentPlayer)) {
+                endGame(gameState.currentPlayer);
+                return;
+            }
+
+            // 切换玩家
+            gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+            updatePlayerStatus();
+
+            // 调用独立AI大脑：LZR_IA_WUZIQI（人机落子）
+            if (config.gameMode === "ai" && !config.isGameOver && gameState.currentPlayer === 2) {
+                setTimeout(aiPutPiece, 700);
+            }
+        }
+
+        // AI落子 → 完全调用 LZR IA 大脑
+        function aiPutPiece() {
+            // AI思考动画
+            dom.gameStatus.innerHTML = '<i class="fas fa-spinner ai-thinking"></i> LZR IA 思考中...';
+            
+            // 调用AI大脑获取最佳位置
+            let best = LZR_IA_WUZIQI.getBestMove(
+                gameState.board, 
+                config.boardSize, 
+                config.aiDifficulty
+            );
+
+            gameState.cursorX = best.x;
+            gameState.cursorY = best.y;
+            updateCursor();
+            
+            setTimeout(() => putPiece(), 300);
+        }
+
+        // 判断胜利
+        function checkWin(x, y, player) {
+            const dirs = [[1,0],[0,1],[1,1],[1,-1]];
+            for (let [dx, dy] of dirs) {
+                let count = 1;
+                for (let i=1;i<5;i++) {
+                    const nx = x+dx*i, ny = y+dy*i;
+                    if (nx>=0&&nx<15&&ny>=0&&ny<15&&gameState.board[ny][nx]===player) count++;
+                    else break;
+                }
+                for (let i=1;i<5;i++) {
+                    const nx = x-dx*i, ny = y-dy*i;
+                    if (nx>=0&&nx<15&&ny>=0&&ny<15&&gameState.board[ny][nx]===player) count++;
+                    else break;
+                }
+                if (count >=5) return true;
+            }
+            return false;
+        }
+
+        // 彩带庆祝
+        function createConfetti(color) {
+            dom.confetti.innerHTML = "";
+            for(let i=0;i<100;i++){
+                let p = document.createElement("div");
+                p.style.position = "absolute";
+                p.style.width = Math.random()*10 + 5 + "px";
+                p.style.height = Math.random()*4 + 2 + "px";
+                p.style.backgroundColor = color;
+                p.style.left = Math.random()*100 + "%";
+                p.style.top = "0";
+                p.style.opacity = Math.random();
+                p.style.transform = `rotate(${Math.random()*360}deg)`;
+                p.style.animation = `fall ${Math.random()*2 + 2}s linear forwards`;
+                dom.confetti.appendChild(p);
+            }
+            let style = document.createElement("style");
+            style.textContent = "@keyframes fall{0%{transform:translateY(0) rotate(0deg)}100%{transform:translateY(100vh) rotate(720deg)}}";
+            document.head.appendChild(style);
+        }
+
+        // 游戏结束
+        function endGame(winner) {
+            config.isGameOver = true;
+            clearInterval(gameState.timeInterval);
+            const text = winner === 1 ? "蓝方胜利！" : "红方胜利！";
+            dom.gameStatus.textContent = text;
+            
+            // 胜利后保持对应颜色（修复移动端兼容）
+            if(winner === 1) {
+                dom.body.classList.remove("red-turn");
+                dom.body.classList.add("blue-turn");
+                createConfetti("#4facfe");
+            } else {
+                dom.body.classList.remove("blue-turn");
+                dom.body.classList.add("red-turn");
+                createConfetti("#ff416c");
+            }
+            // 清除翻转
+            dom.gameFlipArea.classList.remove("flip-180");
+        }
+
+     // 更新玩家状态+2P翻转（双向动画，仅2P切换背景色）
+function updatePlayerStatus() {
+    // 先清空所有背景色类
+    dom.body.classList.remove("blue-turn", "red-turn");
+    
+    // 人机模式：仅显示文字，**不切换背景颜色**
+    if (config.gameMode === "ai") {
+        dom.gameFlipArea.classList.remove("flip-180");
+        if(gameState.currentPlayer === 1) {
+            // 删掉了背景色切换，只保留提示文字
+            dom.gameStatus.textContent = "蓝方（你）回合";
+        } else {
+            // 删掉了背景色切换，只保留提示文字
+            dom.gameStatus.textContent = "红方（AI）思考中";
+        }
+        return;
+    }
+
+    // 2P模式：保留背景色切换 + 翻转动画（完全不变）
+    if (gameState.currentPlayer === 1) {
+        dom.body.classList.add("blue-turn");
+        dom.gameFlipArea.classList.remove("flip-180");
+        dom.gameStatus.textContent = "蓝方回合";
+    } else {
+        dom.body.classList.add("red-turn");
+        dom.gameFlipArea.classList.add("flip-180");
+        dom.gameStatus.textContent = "红方回合";
+    }
+}
+
+// 游戏结束（仅2P胜利切换背景，人机胜利不切换背景）
+function endGame(winner) {
+    config.isGameOver = true;
+    clearInterval(gameState.timeInterval);
+    const text = winner === 1 ? "蓝方胜利！" : "红方胜利！";
+    dom.gameStatus.textContent = text;
+    
+    // 仅2P模式胜利切换背景色，人机模式不切换
+    if(config.gameMode === "2p"){
+        if(winner === 1) {
+            dom.body.classList.remove("red-turn");
+            dom.body.classList.add("blue-turn");
+        } else {
+            dom.body.classList.remove("blue-turn");
+            dom.body.classList.add("red-turn");
+        }
+    }
+    
+    // 彩带效果完全保留
+    createConfetti(winner === 1 ? "#4facfe" : "#ff416c");
+    // 清除翻转
+    dom.gameFlipArea.classList.remove("flip-180");
+}
+
+        // 开始游戏
+        function startGame() {
+            config.isGameStart = true;
+            config.isGameOver = false;
+            gameState.board = Array(15).fill().map(()=>Array(15).fill(0));
+            gameState.currentPlayer = 1;
+            gameState.cursorX = 7;
+            gameState.cursorY = 7;
+            drawBoard();
+            updateCursor();
+            startGameTime();
+            updatePlayerStatus();
+            dom.confetti.innerHTML = "";
+        }
+
+        // 事件绑定
+        function bindEvents() {
+            dom.aiModeBtn.onclick = () => switchMode("ai");
+            dom.p2ModeBtn.onclick = () => switchMode("2p");
+
+            dom.diffBtns.forEach(btn => {
+                btn.onclick = () => {
+                    dom.diffBtns.forEach(b => b.classList.remove("ring-2", "ring-white"));
+                    btn.classList.add("ring-2", "ring-white");
+                    config.aiDifficulty = btn.dataset.diff;
+                }
+            });
+
+            dom.startGameBtn.onclick = startGame;
+
+            // 光标控制
+            dom.upBtn.onclick = () => {
+                if (gameState.cursorY > 0) gameState.cursorY--;
+                updateCursor();
+            };
+            dom.downBtn.onclick = () => {
+                if (gameState.cursorY < 14) gameState.cursorY++;
+                updateCursor();
+            };
+            dom.leftBtn.onclick = () => {
+                if (gameState.cursorX > 0) gameState.cursorX--;
+                updateCursor();
+            };
+            dom.rightBtn.onclick = () => {
+                if (gameState.cursorX < 14) gameState.cursorX++;
+                updateCursor();
+            };
+
+            dom.putBtn.onclick = putPiece;
+            dom.resetBtn.onclick = () => {
+                clearInterval(gameState.timeInterval);
+                // 清除所有背景色类（修复移动端）
+                dom.body.classList.remove("blue-turn", "red-turn");
+                dom.gameFlipArea.classList.remove("flip-180");
+                dom.confetti.innerHTML = "";
+                config.isGameStart = false;
+                config.isGameOver = false;
+                dom.gameStatus.textContent = "请选择模式开始游戏";
+                drawBoard();
+            };
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

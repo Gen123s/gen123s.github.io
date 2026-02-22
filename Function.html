@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>功能中心 - VEGETABLES Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            veg: {
+              light: '#E6F4E6',
+              base: '#7CBD7C',
+              dark: '#4A7C4A',
+              glow: 'rgba(124, 181, 124, 0.4)'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter','system-ui','sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      /* 基础样式保留 */
+      .island-glass {
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      .mobile-island-expanded {
+        width: 90vw;
+        border-radius: 30px;
+      }
+      .nav-link-hover {
+        position: relative;
+      }
+      .nav-link-hover::after {
+        content: '';
+        position: absolute;
+        background: #7CBD7C;
+        bottom: -2px;
+        left: 0;
+        height: 2px;
+        width: 0;
+        border-radius: 999px;
+        transition: all 0.3s;
+      }
+      .nav-link-hover:hover::after {
+        width: 100%;
+      }
+      .nav-link-hover:hover {
+        color: #7CBD7C;
+      }
+      .nav-link-click {
+        transform: scale(0.95);
+        transition: transform 0.2s;
+      }
+      .loader-wrapper {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+      }
+      .loader-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .loader-icon {
+        color: #7CBD7C;
+        font-size: 48px;
+        animation: spin 1.5s linear infinite;
+      }
+      .loader-text {
+        color: #7CBD7C;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .loader-fade {
+        opacity: 0;
+        transition: all 0.8s ease-out;
+      }
+      .page-content {
+        opacity: 0;
+        transition: all 0.8s ease-out;
+        transition-delay: 0.3s;
+      }
+      .page-content.show {
+        opacity: 1;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      /* 点击波纹 */
+      .click-ripple {
+        position: fixed;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124, 181, 124, 0.3) 0%, rgba(230, 244, 230, 0.1) 70%, transparent 100%);
+        transform: scale(0);
+        animation: clickRipple 0.8s ease-out forwards;
+        pointer-events: none;
+        z-index: 1;
+      }
+      @keyframes clickRipple {
+        to { transform: scale(3); opacity: 0; }
+      }
+
+      /* 核心：参考corona.studio重设计的功能卡片 + 光效 */
+      .func-card {
+        @apply island-glass rounded-2xl overflow-hidden relative transition-all duration-500 hover:-translate-y-2;
+        /* 悬浮外发光，贴合corona.studio轻光效 */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+      .func-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08), 0 0 15px 2px var(--veg-glow);
+      }
+      /* 渐变扫光动画（参考corona.studio平滑扫光） */
+      .func-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), rgba(124,181,124,0.2), transparent);
+        background-size: 200% 100%;
+        z-index: 1;
+        pointer-events: none;
+        transition: left 1.8s ease-in-out infinite;
+      }
+      .func-card:hover::before {
+        left: 100%;
+      }
+      /* 图片位：预留独立区域，自适应裁剪 */
+      .func-img-wrap {
+        @apply w-full h-[180px] overflow-hidden relative;
+      }
+      .func-img {
+        @apply w-full h-full object-cover transition-transform duration-700;
+      }
+      .func-card:hover .func-img {
+        transform: scale(1.05); /* 图片悬浮轻微放大，提升质感 */
+      }
+      /* 卡片文字区 */
+      .func-card-content {
+        @apply p-6 relative z-20;
+      }
+      .func-title {
+        @apply text-xl font-bold text-gray-800 mb-3;
+      }
+      .func-desc {
+        @apply text-gray-600 text-sm leading-relaxed mb-4;
+      }
+      /* 前往按钮 */
+      .func-btn {
+        @apply px-5 py-2 bg-veg-base text-white rounded-lg hover:bg-veg-dark transition-all duration-300 inline-block;
+        box-shadow: 0 2px 8px rgba(124,181,124,0.3);
+      }
+      .func-btn:hover {
+        box-shadow: 0 4px 12px rgba(124,181,124,0.4);
+        transform: scale(0.98);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-veg-light via-white to-veg-light/80 font-sans overflow-x-hidden min-h-screen">
+  <!-- 加载动画 -->
+  <div id="loader" class="loader-wrapper">
+    <div class="loader-content">
+      <i class="fa-solid fa-gamepad loader-icon"></i>
+      <p class="loader-text">VEGETABLES Online</p>
+    </div>
+  </div>
+
+  <div class="page-content" id="pageContent">
+    <!-- 导航栏 - 无缓入动画，直接显示 -->
+    <header class="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-6xl">
+      <div class="island-glass rounded-full px-6 py-3 flex items-center justify-between shadow-lg">
+        <!-- Logo 跳转首页 home.html -->
+        <a href="home.html" class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-veg-base flex items-center justify-center">
+            <i class="fa-solid fa-leaf text-white text-sm"></i>
+          </div>
+          <span class="text-gray-800 font-bold">VEGETABLES</span>
+        </a>
+
+        <!-- 桌面端导航 -->
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="Function.html" class="text-veg-base font-bold nav-link-hover">功能</a>
+          <a href="#" class="text-gray-600 nav-link-hover">关于</a>
+          <a href="#" class="text-gray-600 nav-link-hover">更多</a>
+          <a href="#" class="px-4 py-1.5 bg-veg-base text-white rounded-full hover:bg-veg-dark transition-all active:scale-95">加入</a>
+        </nav>
+
+        <!-- 移动端菜单按钮 -->
+        <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center text-gray-800 rounded-full hover:bg-gray-100 transition-all active:scale-90">
+          <i class="fa-solid fa-bars text-xl" id="menuIcon"></i>
+        </button>
+
+        <!-- 移动端菜单 -->
+        <nav id="mobileMenu" class="hidden md:hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 island-glass mobile-island-expanded py-4 px-6 flex flex-col items-center gap-4 shadow-xl opacity-0 scale-95 transition-all duration-300 origin-top">
+          <a href="Function.html" class="py-2 text-lg text-veg-base font-bold w-full text-center nav-link-hover">功能</a>
+          <a href="#" class="py-2 text-lg text-gray-700 w-full text-center nav-link-hover">关于</a>
+          <a href="#" class="py-2 text-lg text-gray-700 w-full text-center nav-link-hover">更多</a>
+          <a href="#" class="mt-2 py-2 bg-veg-base text-white rounded-full text-center text-lg w-full hover:bg-veg-dark transition-all active:scale-95">加入</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 功能页面主体 -->
+    <section class="w-full min-h-screen pt-28 pb-20 px-4 relative overflow-hidden">
+      <!-- 背景装饰 -->
+      <div class="absolute -top-40 -right-40 w-[400px] h-[400px] bg-veg-light rounded-full opacity-70 blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-veg-light rounded-full opacity-70 blur-3xl"></div>
+
+      <div class="max-w-6xl mx-auto relative z-10">
+        <div class="text-center mb-12">
+          <h1 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-gray-800 mb-3">功能</h1>
+          <p class="text-gray-600 max-w-xl mx-auto">VEGETABLES 常用功能</p>
+        </div>
+
+        <!-- 功能卡片列表 - 预留图片位，直接替换img即可 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- 卡片1：玩家社区 -->
+              <!-- 【替换提示】直接把src换成你的图片地址即可 -->
+
+     <div class="func-card">
+            <div class="func-img-wrap">
+              <img src="LZR copy.jpg" alt="赛事活动" class="func-img">
+            </div>
+            <div class="func-card-content">
+              <h3 class="func-title">LZR IA-逻辑零响</h3>
+              <p class="func-desc">
+                Logic Zero Response Intelligence Artificial 可接入DeepSeek API 还有自定义知识库功能</p>
+              <a href="AI NEW.html" class="func-btn">前往使用</a>
+            </div>
+          </div>
+
+          <div class="func-card">
+            <div class="func-img-wrap">
+              <img src="游戏中心图片.png" alt="游戏中心" class="func-img">
+            </div>
+            <div class="func-card-content">
+              <h3 class="func-title">GAMES CENTER</h3>
+              <p class="func-desc">经典游戏 但是拥有更多自定义参数</p>
+              <a href="games.html" class="func-btn">前往使用</a>
+            </div>
+          </div>
+
+
+<div class="func-card">
+   <div class="func-img-wrap">
+              <img src="DDS Small.jpg" alt="DDS" class="func-img">
+            </div>
+            <div class="func-card-content">
+              <h3 class="func-title">DreamDale Server</h3>
+              <p class="func-desc">网易我的世界租赁服</p>
+              <a href="#" class="func-btn">加入</a>
+            </div>
+          </div>
+
+<!--
+          <div class="func-card">
+            <div class="func-img-wrap">
+              <img src="" alt="游戏直播" class="func-img">
+            </div>
+            <div class="func-card-content">
+              <h3 class="func-title">游戏直播</h3>
+              <p class="func-desc">观看大神操作直播，学习高端游戏技巧，全屏无干扰观看，实时互动交流。</p>
+              <a href="#" class="func-btn">前往使用</a>
+            </div>
+          </div>
+
+        
+          <div class="func-card">
+            <div class="func-img-wrap">
+              <img src="" alt="内容创作" class="func-img">
+            </div>
+            <div class="func-card-content">
+              <h3 class="func-title">内容创作</h3>
+              <p class="func-desc">发布游戏攻略、图文、视频内容，展示个人游戏才华，获得更多玩家关注与点赞。</p>
+              <a href="#" class="func-btn">前往使用</a>
+            </div>
+          </div>
+
+          <div class="func-card">
+            <div class="func-img-wrap">
+              <img src="" alt="消息通知" class="func-img">
+            </div>
+            <div class="func-card-content">
+              <h3 class="func-title">消息通知</h3>
+              <p class="func-desc">实时接收游戏版本更新、官方活动提醒、好友互动消息，不错过任何重要信息。</p>
+              <a href="#" class="func-btn">前往使用</a>
+            </div>
+          -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="w-full py-10 island-glass relative z-20">
+      <div class="max-w-6xl mx-auto text-center">
+        <div class="flex justify-center gap-5 mb-5">
+          <a href="#" class="w-9 h-9 rounded-full bg-veg-light flex items-center justify-center text-veg-base hover:bg-veg-base hover:text-white transition-all"><i class="fa-brands fa-weixin"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-veg-light flex items-center justify-center text-veg-base hover:bg-veg-base hover:text-white transition-all"><i class="fa-brands fa-weibo"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-veg-light flex items-center justify-center text-veg-base hover:bg-veg-base hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+        <p class="text-gray-500 text-sm">© 2026 VEGETABLES Online</p>
+        <P>Function v1.0</P>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // 加载动画
+    window.addEventListener('load', function() {
+      const loader = document.getElementById('loader');
+      const pageContent = document.getElementById('pageContent');
+      loader.classList.add('loader-fade');
+      setTimeout(()=>loader.style.display='none',800);
+      pageContent.classList.add('show');
+    });
+
+    // 移动端菜单交互
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+    let menuExpanded = false;
+
+    mobileMenuBtn.addEventListener('click',()=>{
+      menuExpanded=!menuExpanded;
+      if(menuExpanded){
+        mobileMenu.classList.remove('hidden');
+        setTimeout(()=>mobileMenu.classList.remove('opacity-0','scale-95'),10);
+        menuIcon.classList.replace('fa-bars','fa-times');
+      }else{
+        mobileMenu.classList.add('opacity-0','scale-95');
+        menuIcon.classList.replace('fa-times','fa-bars');
+        setTimeout(()=>mobileMenu.classList.add('hidden'),300);
+      }
+    });
+
+    // 点击页面其他区域关闭移动端菜单
+    document.addEventListener('click',(e)=>{
+      if(!mobileMenuBtn.contains(e.target)&&!mobileMenu.contains(e.target)&&menuExpanded){
+        mobileMenu.classList.add('opacity-0','scale-95');
+        menuIcon.classList.replace('fa-times','fa-bars');
+        setTimeout(()=>mobileMenu.classList.add('hidden'),300);
+        menuExpanded=false;
+      }
+    });
+
+    // 背景点击波纹交互
+    function createClickRipple(x,y){
+      const r=document.createElement('div');
+      r.className='click-ripple';
+      r.style.cssText=`width:60px;height:60px;left:${x-30}px;top:${y-30}px;`;
+      document.body.appendChild(r);
+      setTimeout(()=>r.remove(),800);
+    }
+    document.addEventListener('click',e=>createClickRipple(e.clientX,e.clientY));
+    document.addEventListener('touchstart',e=>createClickRipple(e.touches[0].clientX,e.touches[0].clientY));
+  </script>
+</body>
+</html>

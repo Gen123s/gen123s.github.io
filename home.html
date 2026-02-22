@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VEGETABLES Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            veg: {
+              light: '#E6F4E6',
+              base: '#7CBD7C',
+              dark: '#4A7C4A'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter','system-ui','sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .island-glass {
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      .mobile-island-expanded {
+        width: 90vw;
+        border-radius: 30px;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        overflow-y: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .text-fade {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      }
+      .text-fade.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .nav-link-hover {
+        position: relative;
+      }
+      .nav-link-hover::after {
+        content: '';
+        position: absolute;
+        background: #7CBD7C;
+        bottom: -2px;
+        left: 0;
+        height: 2px;
+        width: 0;
+        border-radius: 999px;
+        transition: all 0.3s;
+      }
+      .nav-link-hover:hover::after {
+        width: 100%;
+      }
+      .nav-link-hover:hover {
+        color: #7CBD7C;
+      }
+      .nav-link-click {
+        transform: scale(0.95);
+        transition: transform 0.2s;
+      }
+      .loader-wrapper {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+      }
+      .loader-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .loader-icon {
+        color: #7CBD7C;
+        font-size: 48px;
+        animation: spin 1.5s linear infinite;
+      }
+      .loader-text {
+        color: #7CBD7C;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .loader-fade {
+        opacity: 0;
+        transition: all 0.8s ease-out;
+      }
+      .page-content {
+        opacity: 0;
+        transition: all 0.8s ease-out;
+        transition-delay: 0.3s;
+      }
+      .page-content.show {
+        opacity: 1;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      /* 点击交互光晕效果 */
+      .click-ripple {
+        position: fixed;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124, 181, 124, 0.3) 0%, rgba(230, 244, 230, 0.1) 70%, transparent 100%);
+        transform: scale(0);
+        animation: clickRipple 0.8s ease-out forwards;
+        pointer-events: none;
+        z-index: 1;
+      }
+      @keyframes clickRipple {
+        to {
+          transform: scale(3);
+          opacity: 0;
+        }
+      }
+    }
+  </style>
+</head>
+
+<!-- 渐变背景保留 -->
+<body class="bg-gradient-to-br from-veg-light via-white to-veg-light/80 font-sans overflow-x-hidden" id="body">
+  <!-- 全屏加载动画 -->
+  <div id="loader" class="loader-wrapper">
+    <div class="loader-content">
+      <i class="fa-solid fa-gamepad loader-icon"></i>
+      <p class="loader-text">VEGETABLES Online</p>
+    </div>
+  </div>
+
+  <!-- 页面主体内容 -->
+  <div class="page-content" id="pageContent">
+    <!-- 灵动岛导航 -->
+    <header id="islandNav" style="top: -100px; opacity: 0; filter: blur(4px); transition: all 0.7s ease-out;" class="fixed left-1/2 translate-x-[-50%] z-50">
+      <div class="island-glass rounded-full px-6 py-3 flex items-center justify-between shadow-lg hover:shadow-xl transition-all duration-300">
+        
+      <!-- Logo -->
+<a href="home.html" class="flex items-center gap-2">
+  <div class="w-8 h-8 rounded-lg bg-veg-base flex items-center justify-center">
+    <i class="fa-solid fa-leaf text-white text-sm"></i>
+  </div>
+  <span class="text-gray-800 font-bold">VEGETABLES</span>
+</a>
+
+        <!-- PC端导航 -->
+        <nav class="hidden md:flex items-center gap-8">
+          <p></p>
+          <a href="Function.html" class="text-gray-600 nav-link-hover" onclick="var self=this;self.classList.add('nav-link-click');setTimeout(function(){self.classList.remove('nav-link-click');},200);">功能</a>
+          <a href="about.html" class="text-gray-600 nav-link-hover" onclick="var self=this;self.classList.add('nav-link-click');setTimeout(function(){self.classList.remove('nav-link-click');},200);">关于</a>
+          <a href="more.html" class="text-gray-600 nav-link-hover" onclick="var self=this;self.classList.add('nav-link-click');setTimeout(function(){self.classList.remove('nav-link-click');},200);">更多</a>
+          <a href="join.html" class="px-4 py-1.5 bg-veg-base text-white rounded-full hover:bg-veg-dark transition-all hover:shadow-lg active:scale-95">加入</a>
+        </nav>
+
+        <!-- 移动端菜单按钮 -->
+        <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center text-gray-800 rounded-full hover:bg-gray-100 transition-all active:scale-90">
+          <i class="fa-solid fa-bars text-xl transition-transform duration-300" id="menuIcon"></i>
+        </button>
+
+        <!-- 移动端灵动岛菜单 -->
+        <nav id="mobileMenu" class="hidden md:hidden absolute top-full left-1/2 translate-x-[-50%] mt-3 island-glass mobile-island-expanded py-4 px-6 flex flex-col items-center gap-4 shadow-xl opacity-0 scale-95 transition-all duration-400 origin-top">
+          <a href="Function.html" class="py-2 text-lg text-gray-700 w-full text-center nav-link-hover" onclick="var self=this;self.classList.add('nav-link-click');setTimeout(function(){self.classList.remove('nav-link-click');},200);">功能</a>
+          <a href="about.html" class="py-2 text-lg text-gray-700 w-full text-center nav-link-hover" onclick="var self=this;self.classList.add('nav-link-click');setTimeout(function(){self.classList.remove('nav-link-click');},200);">关于</a>
+          <a href="more.html" class="py-2 text-lg text-gray-700 w-full text-center nav-link-hover" onclick="var self=this;self.classList.add('nav-link-click');setTimeout(function(){self.classList.remove('nav-link-click');},200);">更多</a>
+          <a href="join.html" class="mt-2 py-2 bg-veg-base text-white rounded-full text-center text-lg w-full hover:bg-veg-dark transition-all active:scale-95">加入</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 核心内容 -->
+    <section class="w-full min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+      <div class="absolute -top-40 -right-40 w-[400px] h-[400px] bg-veg-light rounded-full opacity-70 blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-veg-light rounded-full opacity-70 blur-3xl"></div>
+
+      <div id="controller" style="transform-origin: center center;" class="relative z-10 transition-all duration-700 ease-out mb-8">
+        <i class="fa-solid fa-gamepad text-[140px] md:text-[200px] text-veg-base"></i>
+      </div>
+
+      <div class="relative z-10 text-center max-w-2xl px-6 text-fade" id="animateText">
+        <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold mb-4">
+          <span class="text-veg-base">VEGETABLES</span>
+          <span class="text-gray-800">Online</span>
+        </h1>
+        <p class="text-gray-600 text-lg md:text-xl leading-relaxed">游戏热爱 同好集结</p>
+      </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="w-full py-10 island-glass relative z-20">
+      <div class="max-w-6xl mx-auto text-center">
+        <div class="flex justify-center gap-5 mb-5">
+          <a href="#" class="w-9 h-9 rounded-full bg-veg-light flex items-center justify-center text-veg-base hover:bg-veg-base hover:text-white transition-all"><i class="fa-brands fa-weixin"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-veg-light flex items-center justify-center text-veg-base hover:bg-veg-base hover:text-white transition-all"><i class="fa-brands fa-weibo"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-veg-light flex items-center justify-center text-veg-base hover:bg-veg-base hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+        <p class="text-gray-500 text-sm">© 2026 VEGETABLES Online</p>
+<P>Home v3.0 Pro</P>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // 加载动画
+    window.addEventListener('load', function() {
+      const loader = document.getElementById('loader');
+      const pageContent = document.getElementById('pageContent');
+      
+      loader.classList.add('loader-fade');
+      setTimeout(function() {
+        loader.style.display = 'none';
+      }, 800);
+      
+      pageContent.classList.add('show');
+      
+      setTimeout(function() {
+        const islandNav = document.getElementById('islandNav');
+        islandNav.style.top = '20px';
+        islandNav.style.opacity = '1';
+        islandNav.style.filter = 'blur(0px)';
+      }, 1100);
+    });
+
+    // 移动端灵动岛菜单
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+    let menuExpanded = false;
+
+    mobileMenuBtn.addEventListener('click', function() {
+      menuExpanded = !menuExpanded;
+      if (menuExpanded) {
+        mobileMenu.classList.remove('hidden');
+        setTimeout(function() {
+          mobileMenu.classList.remove('opacity-0', 'scale-95');
+        }, 10);
+        menuIcon.classList.remove('fa-bars');
+        menuIcon.classList.add('fa-times', 'rotate-180');
+      } else {
+        mobileMenu.classList.add('opacity-0', 'scale-95');
+        menuIcon.classList.remove('fa-times', 'rotate-180');
+        menuIcon.classList.add('fa-bars');
+        setTimeout(function() {
+          mobileMenu.classList.add('hidden');
+        }, 300);
+      }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target) && menuExpanded) {
+        mobileMenu.classList.add('opacity-0', 'scale-95');
+        menuIcon.classList.remove('fa-times', 'rotate-180');
+        menuIcon.classList.add('fa-bars');
+        setTimeout(function() {
+          mobileMenu.classList.add('hidden');
+        }, 300);
+        menuExpanded = false;
+      }
+    });
+
+    // 手柄滑动动画：仅第一次下滑必须播完才能看页脚，播完后不再支持上滑退回
+    const controller = document.getElementById('controller');
+    const animateText = document.getElementById('animateText');
+    let scrollProgress = 0;
+    let textActivated = false;
+    const maxProgress = 1;
+    let allowPageScroll = false;
+
+    window.addEventListener('wheel', function(e) {
+      if (!allowPageScroll) {
+        e.preventDefault();
+        updateAnimation(e.deltaY > 0);
+      }
+    }, { passive: false });
+
+    let touchStartY = 0;
+    window.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchmove', function(e) {
+      if (!allowPageScroll) {
+        e.preventDefault();
+        const dy = e.touches[0].clientY - touchStartY;
+        updateAnimation(dy < 0);
+      }
+    }, { passive: false });
+
+    function updateAnimation(isScrollDown) {
+      if (isScrollDown) {
+        scrollProgress = Math.min(scrollProgress + 0.1, maxProgress);
+      }
+
+      const scale = 1 + scrollProgress * 0.6;
+      const rotate = scrollProgress * 12;
+      const translateY = -scrollProgress * 30;
+      controller.style.transform = 'scale('+scale+') rotate('+rotate+'deg) translateY('+translateY+'px)';
+
+      if (scrollProgress >= 0.8 && !textActivated) {
+        animateText.classList.add('active');
+        textActivated = true;
+      }
+
+      if (isScrollDown && scrollProgress >= maxProgress) {
+        setTimeout(() => {
+          allowPageScroll = true;
+        }, 300);
+      }
+    }
+
+    // 导航滚动效果
+    window.addEventListener('scroll', function() {
+      const islandNav = document.getElementById('islandNav');
+      if (window.scrollY > 20) {
+        islandNav.style.padding = '8px 24px';
+      } else {
+        islandNav.style.padding = '12px 24px';
+      }
+    });
+
+    // 点击背景交互效果（PC+移动端）保留
+    function createClickRipple(x, y) {
+      const ripple = document.createElement('div');
+      ripple.classList.add('click-ripple');
+      ripple.style.width = '60px';
+      ripple.style.height = '60px';
+      ripple.style.left = x - 30 + 'px';
+      ripple.style.top = y - 30 + 'px';
+      document.body.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+      }, 800);
+    }
+
+    document.addEventListener('click', function(e) {
+      createClickRipple(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('touchstart', function(e) {
+      const touch = e.touches[0];
+      createClickRipple(touch.clientX, touch.clientY);
+    });
+  </script>
+</body>
+</html>

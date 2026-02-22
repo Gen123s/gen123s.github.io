@@ -28,7 +28,7 @@ const operationTip = document.getElementById('operationTip');
 const DEEPSEEK_CONFIG = {
     apiKey: localStorage.getItem('deepseekApiKey') || "",
     apiUrl: "https://api.chatanywhere.tech/v1/chat/completions",
-    model: "deepseek-chat"
+    model: "gpt-4o"
 };
 
 // 状态管理
@@ -584,3 +584,4 @@ window.addEventListener('load', () => {
     switchCustomKbType('fixed');
 
 });
+

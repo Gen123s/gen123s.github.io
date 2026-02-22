@@ -27,7 +27,7 @@ const operationTip = document.getElementById('operationTip');
 // DeepSeek API配置（从localStorage读取，默认空）
 const DEEPSEEK_CONFIG = {
     apiKey: localStorage.getItem('deepseekApiKey') || "",
-    apiUrl: "https://api.deepseek.com/v1/chat/completions",
+    apiUrl: "https://api.chatanywhere.tech/v1/chat/completions",
     model: "deepseek-chat"
 };
 
@@ -582,4 +582,5 @@ window.addEventListener('load', () => {
     
     // 初始化自定义问答类型切换
     switchCustomKbType('fixed');
+
 });

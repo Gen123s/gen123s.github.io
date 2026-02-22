@@ -26,8 +26,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             z-index: -1;
             overflow: hidden;
         }
@@ -35,10 +34,8 @@
         .bg-decoration::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
             background-size: 50px 50px;
             animation: bgMove 20s linear infinite;
@@ -49,36 +46,36 @@
             100% { transform: translate(50px, 50px); }
         }
         
-        /* 毛玻璃效果 */
+        /* 毛玻璃效果（仅面板用，按钮不用） */
         .glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        /* 按钮动画 */
-        .btn-hover {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+        /* 普通灰色按钮（默认按钮） */
+        .btn-normal {
+            background: #444444;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            transition: background 0.2s ease;
+        }
+        .btn-normal:hover {
+            background: #555555;
+        }
+        .btn-normal:active {
+            background: #333333;
         }
         
-        .btn-hover::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+        /* 彩色按钮保留样式 */
+        .btn-color {
+            border: none;
+            border-radius: 0.5rem;
+            transition: opacity 0.2s ease;
         }
-        
-        .btn-hover:active::after {
-            width: 300px;
-            height: 300px;
+        .btn-color:hover {
+            opacity: 0.9;
         }
         
         /* 游戏画布容器 */
@@ -90,10 +87,7 @@
         .canvas-container::before {
             content: '';
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
             background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
             border-radius: 0.75rem;
             z-index: -1;
@@ -154,7 +148,7 @@
             <div class="glass rounded-xl p-6 mb-6 relative">
                 <!-- 开始游戏遮罩 -->
                 <div id="startMask" class="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center z-50">
-                    <button id="realStartBtn" class="btn-hover bg-gradient-to-r from-pink-500 to-purple-500 text-white text-lg px-8 py-4 rounded-lg font-medium">
+                    <button id="realStartBtn" class="btn-color bg-gradient-to-r from-pink-500 to-purple-500 text-white text-lg px-8 py-4 rounded-lg font-medium">
                         开始游戏
                     </button>
                 </div>
@@ -167,11 +161,10 @@
                         <p class="text-lg text-white">达到等级：<span id="finalLevel" class="text-blue-300 font-bold">1</span></p>
                     </div>
                     <div class="flex gap-3">
-                        <button id="restartFromEnd" class="btn-hover bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-medium">重新开始</button>
-                        <button id="backHome" class="btn-hover bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg font-medium"
-        onclick="window.location.href='games.html'">
-    返回主页
-</button>
+                        <button id="restartFromEnd" class="btn-color bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-medium">重新开始</button>
+                        <button id="backHome" class="btn-color bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg font-medium">
+                            返回主页
+                        </button>
                     </div>
                 </div>
                 
@@ -201,26 +194,30 @@
                     </div>
                 </div>
                 
-                <!-- 移动端操作按钮 -->
+                <!-- 移动端操作按钮 → 左右下均支持长按 -->
                 <div class="grid grid-cols-3 gap-3 mb-6 md:hidden">
-                    <button id="leftBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                    <button id="leftBtn" class="btn-normal py-4 rounded-lg flex items-center justify-center">
                         <i class="fas fa-arrow-left text-lg"></i>
                     </button>
-                    <div class="grid grid-rows-2 gap-3">
-                        <button id="rotateBtn" class="btn-hover bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-medium">旋转</button>
-                        <button id="downBtn" class="btn-hover glass text-white rounded-lg flex items-center justify-center">
+                    <div class="grid grid-rows-3 gap-3">
+                        <button id="rotateBtn" class="btn-color bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-medium">旋转</button>
+                        <button id="downBtn" class="btn-normal rounded-lg flex items-center justify-center">
                             <i class="fas fa-arrow-down text-lg"></i>
                         </button>
+                        <!-- 移动端专属 直接下落按钮 -->
+                        <button id="hardDropBtn" class="btn-color bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium">
+                            直接下落
+                        </button>
                     </div>
-                    <button id="rightBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                    <button id="rightBtn" class="btn-normal py-4 rounded-lg flex items-center justify-center">
                         <i class="fas fa-arrow-right text-lg"></i>
                     </button>
                 </div>
                 
                 <!-- 控制按钮 -->
                 <div class="flex gap-3 justify-center">
-                    <button id="pauseBtn" class="btn-hover bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium">暂停</button>
-                    <button id="restartBtn" class="btn-hover bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-2 rounded-lg font-medium">重新开始</button>
+                    <button id="pauseBtn" class="btn-color bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-lg font-medium">暂停</button>
+                    <button id="restartBtn" class="btn-color bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-lg font-medium">重新开始</button>
                 </div>
             </div>
             
@@ -228,8 +225,8 @@
             <div class="glass rounded-xl p-6">
                 <h3 class="font-semibold text-lg mb-3">操作说明</h3>
                 <div class="space-y-2 text-white/80">
-                    <p>🖥️ PC端：↑ 旋转 | ← → 移动 | ↓ 加速下落 | 空格 直接下落 | P 暂停</p>
-                    <p>📱 移动端：点击对应按钮操作</p>
+                    <p>🖥️ PC端：↑ 旋转 | ←→ 移动 | ↓ 单次下落 | 空格 直接下落 | P 暂停</p>
+                    <p>📱 移动端：长按←→ 连续左右移动 | 长按↓ 快速下落 | 直接下落 一键落底</p>
                     <p>💡 消除一行得100分，简单形状优先出现，难度更低</p>
                     <p>⭐ 等级提升速度更慢，游戏节奏更轻松</p>
                 </div>
@@ -238,39 +235,31 @@
     </main>
     
     <script>
-        // 游戏配置 - 调整为更简单的设置
+        // 游戏配置
         const config = {
             rows: 20,
             cols: 10,
             cellSize: 30,
-            speed: 1500, // 初始速度更慢
-            speedStep: 50, // 等级提升时减速幅度更小
-            maxSpeed: 500, // 最快速度也比原来慢
+            speed: 1500,
+            speedStep: 50,
+            maxSpeed: 500,
             scorePerLine: 100,
-            levelStep: 800 // 需要更多分数才升级，降低难度
+            levelStep: 800
         };
 
         // 方块形状和颜色
         const shapes = [
-            { matrix: [[1,1,1,1]], color: '#00FFFF' }, // 直线
-            { matrix: [[1,1],[1,1]], color: '#FFFF00' }, // 正方形
-            { matrix: [[0,1,0],[1,1,1]], color: '#9900FF' }, // T型
-            { matrix: [[0,0,1],[1,1,1]], color: '#FF9900' }, // L型
-            { matrix: [[1,0,0],[1,1,1]], color: '#0000FF' }, // 反L型
-            { matrix: [[0,1,1],[1,1,0]], color: '#00FF00' }, // Z型
-            { matrix: [[1,1,0],[0,1,1]], color: '#FF0000' } // 反Z型
+            { matrix: [[1,1,1,1]], color: '#00FFFF' },
+            { matrix: [[1,1],[1,1]], color: '#FFFF00' },
+            { matrix: [[0,1,0],[1,1,1]], color: '#9900FF' },
+            { matrix: [[0,0,1],[1,1,1]], color: '#FF9900' },
+            { matrix: [[1,0,0],[1,1,1]], color: '#0000FF' },
+            { matrix: [[0,1,1],[1,1,0]], color: '#00FF00' },
+            { matrix: [[1,1,0],[0,1,1]], color: '#FF0000' }
         ];
 
-        // 形状权重 - 简单形状出现概率更高
-        const shapeWeights = [
-            0.3,  // 直线 - 30%
-            0.3,  // 正方形 - 30% 
-            0.1,  // T型 - 10%
-            0.1,  // L型 - 10%
-            0.1,  // 反L型 - 10%
-            0.05, // Z型 - 5%
-            0.05  // 反Z型 - 5%
-        ];
+        // 形状权重 - 简单形状概率更高
+        const shapeWeights = [0.3, 0.3, 0.1, 0.1, 0.1, 0.05, 0.05];
 
         // 游戏状态
         let gameState = {
@@ -280,7 +269,7 @@
             previewCtx: null,
             grid: [],
             currentPiece: null,
-            nextPiece: null, // 下一个方块
+            nextPiece: null,
             currentX: 0,
             currentY: 0,
             score: 0,
@@ -290,6 +279,12 @@
             speed: config.speed
         };
 
+        // 长按定时器：左、右、下
+        let longPressLeftTimer = null;
+        let longPressRightTimer = null;
+        let longPressDownTimer = null;
+        const LONG_PRESS_INTERVAL = 50; // 长按每50ms移动一次
+
         // DOM元素
         const startMask = document.getElementById('startMask');
         const endMask = document.getElementById('endMask');
@@ -298,14 +293,15 @@
         const finalLevel = document.getElementById('finalLevel');
         const restartFromEnd = document.getElementById('restartFromEnd');
         const backHome = document.getElementById('backHome');
+        const hardDropBtn = document.getElementById('hardDropBtn');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const downBtn = document.getElementById('downBtn');
 
         // 初始化游戏
         function initGame() {
-            // 主画布初始化
             gameState.canvas = document.getElementById('tetrisCanvas');
             gameState.ctx = gameState.canvas.getContext('2d');
-            
-            // 预览画布初始化
             gameState.previewCanvas = document.getElementById('previewCanvas');
             gameState.previewCtx = gameState.previewCanvas.getContext('2d');
             gameState.previewCanvas.width = 90;
@@ -319,29 +315,24 @@
 
             updateScore();
             updateLevel();
-            
-            // 生成第一个方块和下一个方块
             gameState.nextPiece = getWeightedRandomShape();
             spawnPiece();
             
             drawGame();
-            drawNextPiece(); // 绘制下一个方块预览
+            drawNextPiece();
             bindEvents();
         }
 
-        // 按权重随机获取形状 - 简单形状概率更高
+        // 按权重随机获取形状
         function getWeightedRandomShape() {
             const random = Math.random();
             let cumulativeProbability = 0;
-            
             for (let i = 0; i < shapeWeights.length; i++) {
                 cumulativeProbability += shapeWeights[i];
                 if (random <= cumulativeProbability) {
                     return JSON.parse(JSON.stringify(shapes[i]));
                 }
             }
-            
-            // 保底返回正方形
             return JSON.parse(JSON.stringify(shapes[1]));
         }
 
@@ -354,70 +345,48 @@
 
         // 生成新方块
         function spawnPiece() {
-            // 使用预先生成的下一个方块
             gameState.currentPiece = gameState.nextPiece;
-            // 生成新的下一个方块
             gameState.nextPiece = getWeightedRandomShape();
-            
             gameState.currentX = Math.floor((config.cols - gameState.currentPiece.matrix[0].length) / 2);
             gameState.currentY = 0;
-
             if (!isValidMove(0, 0)) gameOver();
             drawGame();
-            drawNextPiece(); // 更新下一个方块预览
+            drawNextPiece();
         }
 
         // 绘制下一个方块预览
         function drawNextPiece() {
             const ctx = gameState.previewCtx;
-            const size = 20; // 预览格子大小
+            const size = 20;
             ctx.clearRect(0, 0, gameState.previewCanvas.width, gameState.previewCanvas.height);
-            
             const matrix = gameState.nextPiece.matrix;
-            // 计算居中偏移
             const offsetX = (gameState.previewCanvas.width - matrix[0].length * size) / 2;
             const offsetY = (gameState.previewCanvas.height - matrix.length * size) / 2;
             
-            // 绘制预览方块
             for (let row = 0; row < matrix.length; row++) {
                 for (let col = 0; col < matrix[row].length; col++) {
                     if (matrix[row][col]) {
                         ctx.fillStyle = gameState.nextPiece.color;
-                        ctx.fillRect(
-                            offsetX + col * size, 
-                            offsetY + row * size, 
-                            size - 1, 
-                            size - 1
-                        );
+                        ctx.fillRect(offsetX + col * size, offsetY + row * size, size - 1, size - 1);
                         ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-                        ctx.strokeRect(
-                            offsetX + col * size, 
-                            offsetY + row * size, 
-                            size - 1, 
-                            size - 1
-                        );
+                        ctx.strokeRect(offsetX + col * size, offsetY + row * size, size - 1, size - 1);
                     }
                 }
             }
         }
 
-        // 绘制游戏背景方格（核心新增）
+        // 绘制背景网格
         function drawBackgroundGrid() {
             const ctx = gameState.ctx;
             const size = config.cellSize;
-            // 淡白色半透明网格，不影响游戏视觉
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
             ctx.lineWidth = 1;
-
-            // 绘制竖线
             for (let x = 0; x <= config.cols; x++) {
                 ctx.beginPath();
                 ctx.moveTo(x * size, 0);
                 ctx.lineTo(x * size, config.rows * size);
                 ctx.stroke();
             }
-
-            // 绘制横线
             for (let y = 0; y <= config.rows; y++) {
                 ctx.beginPath();
                 ctx.moveTo(0, y * size);
@@ -429,7 +398,7 @@
         // 绘制游戏
         function drawGame() {
             gameState.ctx.clearRect(0, 0, gameState.canvas.width, gameState.canvas.height);
-            drawBackgroundGrid(); // 先画背景方格
+            drawBackgroundGrid();
             drawGrid();
             drawPiece();
         }
@@ -479,7 +448,7 @@
         }
 
         function movePiece(dx, dy) {
-            if (gameState.isPaused) return;
+            if (gameState.isPaused) return false;
             if (isValidMove(dx, dy)) {
                 gameState.currentX += dx;
                 gameState.currentY += dy;
@@ -493,6 +462,12 @@
                 return false;
             }
             return false;
+        }
+
+        // 直接下落（一键到底）
+        function hardDrop() {
+            if (gameState.isPaused) return;
+            while (movePiece(0, 1));
         }
 
         function rotatePiece() {
@@ -523,21 +498,19 @@
             }
         }
 
-        // 消除行与计分 - 调整为更容易得分
+        // 消除行与计分
         function clearLines() {
             let linesCleared = 0;
             for (let row = config.rows - 1; row >= 0; row--) {
                 if (gameState.grid[row].every(cell => cell)) {
                     linesCleared++;
-                    // 行消除后下落更平滑
                     for (let r = row; r > 0; r--) gameState.grid[r] = [...gameState.grid[r - 1]];
                     gameState.grid[0] = Array(config.cols).fill(null);
                     row++;
                 }
             }
             if (linesCleared > 0) {
-                // 调整计分，更容易得分
-                const lineScores = [0, 150, 400, 600, 900]; // 基础分更高
+                const lineScores = [0, 150, 400, 600, 900];
                 gameState.score += lineScores[linesCleared] * gameState.level;
                 updateScore();
                 checkLevelUp();
@@ -549,7 +522,6 @@
             if (newLevel > gameState.level) {
                 gameState.level = newLevel;
                 updateLevel();
-                // 速度调整更平缓
                 gameState.speed = Math.max(config.speed - (gameState.level - 1) * config.speedStep, config.maxSpeed);
                 restartGameLoop();
             }
@@ -582,6 +554,7 @@
 
         // 重新开始游戏
         function restartGame() {
+            clearAllLongPressTimers();
             if (gameState.gameInterval) clearInterval(gameState.gameInterval);
             endMask.classList.add('hidden');
             initGame();
@@ -591,10 +564,21 @@
         // 游戏结束
         function gameOver() {
             gameState.isPaused = true;
+            clearAllLongPressTimers();
             if (gameState.gameInterval) clearInterval(gameState.gameInterval);
             finalScore.textContent = gameState.score;
             finalLevel.textContent = gameState.level;
             endMask.classList.remove('hidden');
+        }
+
+        // 清空所有长按定时器
+        function clearAllLongPressTimers() {
+            clearInterval(longPressLeftTimer);
+            clearInterval(longPressRightTimer);
+            clearInterval(longPressDownTimer);
+            longPressLeftTimer = null;
+            longPressRightTimer = null;
+            longPressDownTimer = null;
         }
 
         // 绑定事件
@@ -607,24 +591,85 @@
                     case 'ArrowRight': movePiece(1, 0); break;
                     case 'ArrowDown': movePiece(0, 1); break;
                     case 'ArrowUp': rotatePiece(); break;
-                    case ' ': while (movePiece(0, 1)); break;
-                    case 'p': 
-                    case 'P': togglePause(); break;
+                    case ' ': hardDrop(); break;
+                    case 'p': case 'P': togglePause(); break;
                 }
             });
 
-            // 移动端按钮
-            document.getElementById('leftBtn').addEventListener('click', () => movePiece(-1, 0));
-            document.getElementById('rightBtn').addEventListener('click', () => movePiece(1, 0));
-            document.getElementById('downBtn').addEventListener('click', () => movePiece(0, 1));
-            document.getElementById('rotateBtn').addEventListener('click', () => rotatePiece());
+            // 移动端基础按钮
+            document.getElementById('rotateBtn').addEventListener('click', rotatePiece);
             document.getElementById('pauseBtn').addEventListener('click', togglePause);
             document.getElementById('restartBtn').addEventListener('click', restartGame);
-
-            // 开始与结算按钮
             realStartBtn.addEventListener('click', startRealGame);
             restartFromEnd.addEventListener('click', restartGame);
-            backHome.addEventListener('click', () => window.location.href = 'games.html');
+            backHome.addEventListener('click', () => window.location.href='games.html');
+            hardDropBtn.addEventListener('click', hardDrop);
+
+            // ========== 长按左移 ==========
+            leftBtn.addEventListener('touchstart', startLongPressLeft);
+            leftBtn.addEventListener('mousedown', startLongPressLeft);
+            leftBtn.addEventListener('touchend', stopLongPressLeft);
+            leftBtn.addEventListener('mouseup', stopLongPressLeft);
+            leftBtn.addEventListener('touchcancel', stopLongPressLeft);
+
+            // ========== 长按右移 ==========
+            rightBtn.addEventListener('touchstart', startLongPressRight);
+            rightBtn.addEventListener('mousedown', startLongPressRight);
+            rightBtn.addEventListener('touchend', stopLongPressRight);
+            rightBtn.addEventListener('mouseup', stopLongPressRight);
+            rightBtn.addEventListener('touchcancel', stopLongPressRight);
+
+            // ========== 长按下移 ==========
+            downBtn.addEventListener('touchstart', startLongPressDown);
+            downBtn.addEventListener('mousedown', startLongPressDown);
+            downBtn.addEventListener('touchend', stopLongPressDown);
+            downBtn.addEventListener('mouseup', stopLongPressDown);
+            downBtn.addEventListener('touchcancel', stopLongPressDown);
+        }
+
+        // 长按向左开始
+        function startLongPressLeft(e) {
+            e.preventDefault();
+            if (gameState.isPaused) return;
+            if (longPressLeftTimer) return;
+            movePiece(-1, 0);
+            longPressLeftTimer = setInterval(() => movePiece(-1, 0), LONG_PRESS_INTERVAL);
+        }
+        // 长按向左结束
+        function stopLongPressLeft(e) {
+            e.preventDefault();
+            clearInterval(longPressLeftTimer);
+            longPressLeftTimer = null;
+        }
+
+        // 长按向右开始
+        function startLongPressRight(e) {
+            e.preventDefault();
+            if (gameState.isPaused) return;
+            if (longPressRightTimer) return;
+            movePiece(1, 0);
+            longPressRightTimer = setInterval(() => movePiece(1, 0), LONG_PRESS_INTERVAL);
+        }
+        // 长按向右结束
+        function stopLongPressRight(e) {
+            e.preventDefault();
+            clearInterval(longPressRightTimer);
+            longPressRightTimer = null;
+        }
+
+        // 长按向下开始
+        function startLongPressDown(e) {
+            e.preventDefault();
+            if (gameState.isPaused) return;
+            if (longPressDownTimer) return;
+            movePiece(0, 1);
+            longPressDownTimer = setInterval(() => movePiece(0, 1), LONG_PRESS_INTERVAL);
+        }
+        // 长按向下结束
+        function stopLongPressDown(e) {
+            e.preventDefault();
+            clearInterval(longPressDownTimer);
+            longPressDownTimer = null;
         }
 
         // 页面加载初始化

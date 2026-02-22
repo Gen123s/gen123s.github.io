@@ -51,34 +51,30 @@
             100% { transform: translate(50px, 50px); }
         }
         
+        /* 面板保留毛玻璃，按钮禁用 */
         .glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .btn-hover {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+        /* 灰色实心按钮 - 高可见度，无玻璃无动画 */
+        .btn-gray {
+            background: #444444;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        .btn-hover::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+        .btn-gray:hover {
+            background: #555555;
         }
-        
-        .btn-hover:active::after {
-            width: 300px;
-            height: 300px;
+        .btn-gray:active {
+            background: #333333;
         }
         
         .canvas-container {
@@ -175,7 +171,7 @@
         <div class="max-w-md mx-auto">
             <div class="glass rounded-xl p-6 mb-6 relative">
                 <div id="startMask" class="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center z-50">
-                    <button id="realStartBtn" class="btn-hover bg-gradient-to-r from-pink-500 to-purple-500 text-white text-lg px-8 py-4 rounded-lg font-medium">
+                    <button id="realStartBtn" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-lg px-8 py-4 rounded-lg font-medium">
                         开始游戏
                     </button>
                 </div>
@@ -189,8 +185,8 @@
                         <p class="text-lg text-white">难度设置：<span id="finalDifficulty" class="text-purple-300 font-bold"></span></p>
                     </div>
                     <div class="flex gap-3">
-                        <button id="restartFromEnd" class="btn-hover bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-medium">重新开始</button>
-                        <button id="backHome" class="btn-hover bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg font-medium">返回主页</button>
+                        <button id="restartFromEnd" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-medium">重新开始</button>
+                        <button id="backHome" class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg font-medium">返回主页</button>
                     </div>
                 </div>
                 
@@ -219,26 +215,27 @@
                     </div>
                 </div>
                 
+                <!-- 方向键改为灰色实心按钮 -->
                 <div class="grid grid-cols-3 gap-3 mb-6 md:hidden">
                     <div></div>
-                    <button id="upBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                    <button id="upBtn" class="btn-gray">
                         <i class="fas fa-arrow-up text-lg"></i>
                     </button>
                     <div></div>
-                    <button id="leftBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                    <button id="leftBtn" class="btn-gray">
                         <i class="fas fa-arrow-left text-lg"></i>
                     </button>
-                    <button id="downBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                    <button id="downBtn" class="btn-gray">
                         <i class="fas fa-arrow-down text-lg"></i>
                     </button>
-                    <button id="rightBtn" class="btn-hover glass text-white py-3 rounded-lg flex items-center justify-center">
+                    <button id="rightBtn" class="btn-gray">
                         <i class="fas fa-arrow-right text-lg"></i>
                     </button>
                 </div>
                 
                 <div class="flex gap-3 justify-center">
-                    <button id="pauseBtn" class="btn-hover bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium">暂停</button>
-                    <button id="restartBtn" class="btn-hover bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-2 rounded-lg font-medium">重新开始</button>
+                    <button id="pauseBtn" class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium">暂停</button>
+                    <button id="restartBtn" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-2 rounded-lg font-medium">重新开始</button>
                 </div>
             </div>
             
@@ -249,6 +246,7 @@
                     <p>📱 移动端：点击方向按钮控制移动</p>
                     <p>💡 吃到食物得分+10，长度+1，速度提升</p>
                     <p>💀 撞墙或撞到自身，游戏结束</p>
+                    <span class="difficulty-tip difficulty-extreme">部分设备可能会出现背景变成白色的情况</span>
                 </div>
             </div>
             
@@ -301,7 +299,7 @@
                     </div>
                 </div>
                 
-                <button id="saveSettingsBtn" class="btn-hover bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-2 rounded-lg font-medium w-full mt-4">
+                <button id="saveSettingsBtn" class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-2 rounded-lg font-medium w-full mt-4">
                    保存并重启
                 </button>
             </div>

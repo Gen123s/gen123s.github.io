@@ -24,7 +24,7 @@ const OFFICIAL_KNOWLEDGE_BASE = [
         answer: '你怎么知道我叫这个名字的？',
         priority: 10
     },
-    // 调侃/不文明用语
+    // 不文明用语
     {
         keywords: ['沙子', '傻子', '傻'],
         answer: '文明交流哦，不要说不礼貌的话～',

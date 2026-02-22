@@ -26,7 +26,7 @@ const operationTip = document.getElementById('operationTip');
 
 // DeepSeek API配置（从localStorage读取，默认空）
 const DEEPSEEK_CONFIG = {
-    apiKey: localStorage.getItem('deepseekApiKey') || "",
+    apiKey: "sk-9NKbOoJ0DVbIK6klzQTAiPfkogmtOKL9SAiGcbKf8jdm0GS3",
     apiUrl: "https://api.chatanywhere.tech/v1/chat/completions",
     model: "gpt-4o"
 };
@@ -584,4 +584,5 @@ window.addEventListener('load', () => {
     switchCustomKbType('fixed');
 
 });
+
 
